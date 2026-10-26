@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SGMAP - Centro de Control</title>
+    <!-- Tailwind CSS para diseño moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Ajustes personalizados de Tailwind para acercarnos al Azul Transaltisa -->
+    <script>
+        tailwind.config = {
+          theme: {
+            extend: {
+              colors: {
+                transaltisa: {
+                  primary: '#0B336A', /* Azul oscuro corporativo simulado */
+                  secondary: '#1A52A0', /* Azul medio para botones */
+                  hover: '#134080' /* Azul intermedio para el hover */
+                }
+              }
+            }
+          }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased">
+
+    <!-- Navegación con Color Transaltisa -->
+    <nav class="bg-transaltisa-primary text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <i class="fas fa-satellite-dish text-2xl text-blue-300"></i>
+                <h1 class="text-xl font-bold tracking-wider">SGMAP <span class="text-sm font-light text-blue-200">| Centro de Control</span></h1>
+            </div>
+            <div class="text-sm font-medium"><i class="fas fa-user-circle text-lg align-middle mr-1"></i> Centro de Control</div>
+        </div>
+    </nav>
+
+    <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        <!-- Panel Izquierdo: Formulario -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2">Generar Nuevo Ticket</h2>
+                <form id="ticketForm" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Proveedor</label>
+                        <select id="proveedor" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-transaltisa-secondary outline-none" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="WISETRACK">WISETRACK</option>
+                            <option value="MIO">MIO</option>
+                            <option value="COMSATEL">COMSATEL</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Proyecto / Operación</label>
+                        <select id="proyecto" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-transaltisa-secondary outline-none" required>
+                            <option value="">Seleccionar Proyecto...</option>
+                            <option value="Transaltisa">Transaltisa</option>
+                            <option value="Quellaveco">Quellaveco</option>
+                            <option value="Marcobre Concentrado">Marcobre Concentrado</option>
+                            <option value="Antamina">Antamina</option>
+                            <option value="Flota Spot Arequipa">Flota Spot Arequipa</option>
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Unidad</label>
+                            <input type="text" id="unidad" placeholder="Ej. BEY899" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-transaltisa-secondary uppercase outline-none" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-slate-600 mb-1">Prioridad</label>
+                            <select id="prioridad" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-transaltisa-secondary outline-none">
+                                <option value="Media">Media (48h)</option>
+                                <option value="Alta">Alta (24h)</option>
+                                <option value="Crítica">Crítica (4h)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-600 mb-1">Detalle de Incidencia</label>
+                        <textarea id="incidencia" rows="3" placeholder="Descripción de la falla..." class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-transaltisa-secondary outline-none" required></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-transaltisa-secondary hover:bg-transaltisa-hover text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-md flex justify-center items-center gap-2">
+                        <i class="fas fa-paper-plane"></i> Enviar y Notificar
+                    </button>
+                    <p id="statusMsg" class="text-sm text-center font-medium mt-2 hidden"></p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Panel Derecho: Dashboard y KPIs -->
+        <div class="lg:col-span-2 space-y-6">
+            <!-- Tarjetas KPIs -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-transaltisa-secondary">
+                    <div class="text-slate-500 text-sm font-semibold mb-1">Tickets Abiertos</div>
+                    <div id="kpi-abiertos" class="text-3xl font-bold text-slate-800">0</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-l-amber-500">
+                    <div class="text-slate-500 text-sm font-semibold mb-1">Próximos a Vencer</div>
+                    <div id="kpi-proximos" class="text-3xl font-bold text-slate-800">0</div>
+                </div>
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-l-red-500">
+                    <div class="text-slate-500 text-sm font-semibold mb-1">Vencidos (>48h)</div>
+                    <div id="kpi-vencidos" class="text-3xl font-bold text-slate-800">0</div>
+                </div>
+            </div>
+
+            <!-- Tabla Inteligente -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                <!-- Buscador Integrado -->
+                <div class="p-4 border-b border-slate-100 bg-slate-50 flex flex-wrap justify-between items-center gap-4">
+                    <h2 class="text-lg font-bold text-slate-700">Seguimiento en Tiempo Real</h2>
+                    <div class="flex items-center gap-3">
+                        <div class="relative">
+                            <i class="fas fa-search absolute left-3 top-2.5 text-slate-400"></i>
+                            <input type="text" id="buscador" placeholder="Buscar placa, ticket..." class="pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-transaltisa-secondary w-full md:w-64 outline-none">
+                        </div>
+                        <button class="text-transaltisa-secondary bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg text-sm font-semibold transition" onclick="cargarTickets()"><i class="fas fa-sync-alt mr-1"></i></button>
+                    </div>
+                </div>
+                
+                <div class="overflow-x-auto max-h-96">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="sticky top-0 bg-white shadow-sm">
+                            <tr class="text-slate-500 text-xs uppercase tracking-wider border-b">
+                                <th class="p-4 font-semibold">Ticket</th>
+                                <th class="p-4 font-semibold">Proveedor</th>
+                                <th class="p-4 font-semibold">Unidad</th>
+                                <th class="p-4 font-semibold">Estado</th>
+                                <th class="p-4 font-semibold">SLA (Real)</th>
+                                <th class="p-4 font-semibold text-center">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaCuerpo" class="text-sm text-slate-600 divide-y divide-slate-100">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('ticketForm');
+        const statusMsg = document.getElementById('statusMsg');
+        
+        // ¡LA MISMA URL ACTUALIZADA!
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxmaLARWXx6IXLmgZZwx8P5kUNExKJGciy2FLKQ8ACucKzdF77Qlie4arJgH1eOPMQ/exec';
+
+        // Lógica del Buscador en tiempo real
+        document.getElementById('buscador').addEventListener('input', function(e) {
+            const filtro = e.target.value.toLowerCase();
+            const filas = document.querySelectorAll('#tablaCuerpo tr');
+            filas.forEach(fila => {
+                const texto = fila.textContent.toLowerCase();
+                fila.style.display = texto.includes(filtro) ? '' : 'none';
+            });
+        });
+
+        // Generar Ticket
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = form.querySelector('button');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+            btn.disabled = true;
+
+            const payload = {
+                proveedor: document.getElementById('proveedor').value,
+                proyecto: document.getElementById('proyecto').value,
+                unidad: document.getElementById('unidad').value.toUpperCase(),
+                prioridad: document.getElementById('prioridad').value,
+                incidencia: document.getElementById('incidencia').value
+            };
+
+            try {
+                await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                statusMsg.textContent = "¡Enviado con éxito!";
+                statusMsg.className = "text-sm text-center font-bold mt-3 text-green-600 block";
+                form.reset();
+                setTimeout(cargarTickets, 1500);
+            } catch (error) {
+                statusMsg.textContent = "Error de conexión.";
+                statusMsg.className = "text-sm text-center font-bold mt-3 text-red-600 block";
+            } finally {
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar y Notificar';
+                btn.disabled = false;
+                setTimeout(() => statusMsg.classList.add('hidden'), 5000);
+            }
+        });
+
+        // Cargar y Calcular SLA
+        async function cargarTickets() {
+            const tbody = document.getElementById('tablaCuerpo');
+            tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500"><i class="fas fa-spinner fa-spin mr-2"></i> Cargando información...</td></tr>';
+            
+            try {
+                const response = await fetch(APPS_SCRIPT_URL);
+                const tickets = await response.json();
+                tbody.innerHTML = '';
+                
+                let abiertos = 0, proximos = 0, vencidos = 0;
+                const ahora = new Date();
+                
+                tickets.forEach(t => {
+                    let colorEstado = 'bg-slate-100 text-slate-700'; 
+                    let horasSLA = 0;
+                    let htmlSLA = '';
+                    let botonAccion = '';
+
+                    // Cálculo Real de Horas transcurridas
+                    if (t.estado !== 'Cerrada') {
+                        const fechaInicio = new Date(t.fecha);
+                        horasSLA = Math.floor((ahora - fechaInicio) / (1000 * 60 * 60));
+                        abiertos++;
+                        
+                        if (horasSLA >= 48) { vencidos++; htmlSLA = `<span class="text-red-600 font-bold"><i class="fas fa-exclamation-triangle"></i> ${horasSLA} hrs</span>`; }
+                        else if (horasSLA >= 24) { proximos++; htmlSLA = `<span class="text-amber-500 font-bold"><i class="fas fa-clock"></i> ${horasSLA} hrs</span>`; }
+                        else { htmlSLA = `<span class="text-slate-600 font-medium">${horasSLA} hrs</span>`; }
+                    } else {
+                        htmlSLA = `<span class="text-green-500 font-bold"><i class="fas fa-check-double"></i> Finalizado</span>`;
+                    }
+
+                    // Colores de estado y Botones
+                    if(t.estado === 'Pendiente') colorEstado = 'bg-amber-100 text-amber-700';
+                    if(t.estado === 'En atención') colorEstado = 'bg-blue-100 text-blue-700';
+                    if(t.estado === 'En Verificación') {
+                        colorEstado = 'bg-purple-100 text-purple-700 font-bold animate-pulse ring-2 ring-purple-300';
+                        botonAccion = `<button onclick="cerrarTicket('${t.ticket}')" class="bg-purple-600 hover:bg-purple-800 text-white px-3 py-1 rounded-md text-xs font-bold transition-colors shadow-md"><i class="fas fa-check-circle mr-1"></i> Aprobar</button>`;
+                    }
+                    if(t.estado === 'Cerrada') colorEstado = 'bg-green-100 text-green-700';
+
+                    tbody.insertAdjacentHTML('beforeend', `
+                        <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                            <td class="p-4 font-bold" style="color: #1A52A0;">${t.ticket}</td>
+                            <td class="p-4 font-semibold text-slate-700">${t.proveedor}</td>
+                            <td class="p-4 font-bold uppercase">${t.unidad}</td>
+                            <td class="p-4"><span class="${colorEstado} py-1 px-3 rounded-full text-xs">${t.estado}</span></td>
+                            <td class="p-4">${htmlSLA}</td>
+                            <td class="p-4 text-center">${botonAccion}</td>
+                        </tr>
+                    `);
+                });
+                
+                document.getElementById('kpi-abiertos').textContent = abiertos;
+                document.getElementById('kpi-proximos').textContent = proximos;
+                document.getElementById('kpi-vencidos').textContent = vencidos;
+                
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500"><i class="fas fa-times-circle mr-1"></i> Error de conexión</td></tr>';
+            }
+        }
+
+        // Función para aprobar y Cerrar Ticket desde la Web
+        async function cerrarTicket(ticketId) {
+            if(!confirm(`¿Desea aprobar y cerrar definitivamente el ticket ${ticketId}?`)) return;
+            
+            try {
+                await fetch(APPS_SCRIPT_URL, {
+                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'cerrar', ticket: ticketId })
+                });
+                setTimeout(cargarTickets, 1000); // Recarga para ver el cambio a verde
+            } catch (error) {
+                alert("Hubo un error al cerrar el ticket.");
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarTickets);
+    </script>
+</body>
+</html>
