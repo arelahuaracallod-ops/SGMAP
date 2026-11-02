@@ -5,10 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGMAP - Centro de Control</title>
     
-    <!-- Favicon (Icono de pestaña): Cambia el "href" por el enlace de tu logo .png o .ico cuando lo subas a GitHub -->
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjMUI1MkEwIiBkPSJNMjU2IDBDMTE0LjYgMCAwIDExNC42IDAgMjU2czExNC42IDI1NiAyNTYgMjU2IDI1Ni0xMTQuNiAyNTYtMjU2UzM5Ny40IDAgMjU2IDB6bTAgNDY0Yy0xMTQuNyAwLTIwOC05My4zLTIwOC0yMDhTMTQxLjMgNDggMjU2IDQ4czIwOCA5My4zIDIwOCAyMDhTMzcwLjcgNDY0IDI1NiA0NjR6Ii8+PC9zdmc+" type="image/svg+xml">
     
-    <!-- Tipografía Moderna -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -34,19 +32,19 @@
 </head>
 <body class="text-slate-800 antialiased relative">
 
-    <!-- Navbar Glassmorphism -->
+    <!-- Navbar -->
     <nav class="sticky top-0 z-40 bg-transaltisa-primary/95 backdrop-blur-md text-white shadow-md border-b border-white/10">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="p-2 bg-white/10 rounded-lg"><i class="fas fa-satellite-dish text-xl text-blue-200"></i></div>
-                <h1 onclick="abrirModalPass()" class="text-xl font-bold tracking-wide cursor-pointer hover:text-blue-200 transition">SGMAP <span class="text-sm font-normal text-blue-200 opacity-80">| Transaltisa</span></h1>
+                <h1 onclick="abrirModalPass()" class="text-xl font-bold tracking-wide cursor-pointer hover:text-blue-200 transition">SGMAP <span class="text-sm font-normal text-blue-200 opacity-80">| Control Center</span></h1>
             </div>
             <div class="flex items-center gap-3">
                 <button onclick="abrirDashboard()" class="bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 shadow-sm">
-                    <i class="fas fa-chart-line text-blue-300"></i> Dashboard
+                    <i class="fas fa-chart-line text-blue-300"></i> Dashboard SLA
                 </button>
-                <div class="text-sm font-medium flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                    <i class="fas fa-user-circle text-lg"></i> Centro de Control
+                <div class="text-sm font-medium flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full hidden sm:flex">
+                    <i class="fas fa-user-circle text-lg"></i> Operador Activo
                 </div>
             </div>
         </div>
@@ -54,7 +52,7 @@
 
     <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Panel Izquierdo: Formulario -->
+        <!-- Formulario -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-7">
                 <h2 class="text-lg font-bold mb-6 text-slate-800 flex items-center gap-2">
@@ -104,9 +102,8 @@
             </div>
         </div>
 
-        <!-- Dashboard y KPIs -->
+        <!-- KPIs y Tabla -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- KPIs Premium -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-6 flex items-center justify-between">
                     <div>
@@ -131,7 +128,6 @@
                 </div>
             </div>
 
-            <!-- Tabla Elegante -->
             <div class="bg-white rounded-2xl shadow-modern border border-slate-100 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex flex-wrap justify-between items-center gap-4 bg-white/50">
                     <h2 class="text-base font-bold text-slate-800">Historial de Operaciones</h2>
@@ -165,17 +161,56 @@
         </div>
     </div>
 
-    <!-- MODAL DASHBOARD (Gráficos) -->
-    <div id="dashboardModal" class="hidden fixed inset-0 bg-slate-900/70 z-[70] flex justify-center items-center backdrop-blur-sm transition-opacity p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl p-7 border-t-4 border-transaltisa-secondary relative flex flex-col h-[70vh] max-h-[600px]">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-slate-800"><i class="fas fa-chart-pie text-transaltisa-secondary mr-2"></i> Eficiencia de Proveedores</h2>
-                <div class="flex items-center gap-4">
-                    <span class="text-xs font-medium bg-slate-100 text-slate-500 px-3 py-1.5 rounded-full">Actualizado en Tiempo Real</span>
-                    <button onclick="cerrarDashboard()" class="text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-slate-100 h-9 w-9 rounded-full transition-colors flex justify-center items-center"><i class="fas fa-times text-lg"></i></button>
+    <!-- MODAL DASHBOARD PROFESIONAL (SLA) -->
+    <div id="dashboardModal" class="hidden fixed inset-0 bg-slate-900/70 z-[70] flex justify-center items-center backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl p-7 border-t-4 border-transaltisa-secondary relative flex flex-col h-[85vh]">
+            
+            <!-- Cabecera del Dashboard -->
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
+                <h2 class="text-xl font-bold text-slate-800"><i class="fas fa-chart-bar text-transaltisa-secondary mr-2"></i> Rendimiento Analítico (SLA)</h2>
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <select id="filtroDashboard" class="w-full md:w-64 rounded-xl border-slate-200 bg-slate-50 border p-2 text-sm focus:ring-2 focus:ring-transaltisa-secondary outline-none font-semibold text-slate-700" onchange="actualizarDashboardUI()">
+                        <option value="TODOS">Todos los Proveedores</option>
+                    </select>
+                    <button onclick="cerrarDashboard()" class="text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-slate-100 h-10 w-10 rounded-full transition-colors flex justify-center items-center flex-shrink-0"><i class="fas fa-times text-lg"></i></button>
                 </div>
             </div>
-            <div class="flex-1 w-full relative">
+
+            <!-- Mini KPIs de Rendimiento -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Solicitudes</div>
+                        <div id="dash-total" class="text-2xl font-black text-slate-700">0</div>
+                    </div>
+                    <i class="fas fa-folder-open text-3xl text-slate-300"></i>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Atenciones Finalizadas</div>
+                        <div id="dash-atenciones" class="text-2xl font-black text-emerald-600">0</div>
+                    </div>
+                    <i class="fas fa-check-circle text-3xl text-emerald-200"></i>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <div class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Tiempo Promedio Resp.</div>
+                        <div id="dash-tiempo" class="text-2xl font-black text-blue-600">0 hrs</div>
+                    </div>
+                    <i class="fas fa-stopwatch text-3xl text-blue-200"></i>
+                </div>
+            </div>
+
+            <!-- Leyenda de colores dinámica -->
+            <div id="leyendaEstados" class="flex justify-center gap-5 text-xs font-bold text-slate-500 mb-2">
+                <span class="flex items-center gap-1"><i class="fas fa-circle text-amber-500"></i> Pendiente</span>
+                <span class="flex items-center gap-1"><i class="fas fa-circle text-blue-500"></i> En Atención</span>
+                <span class="flex items-center gap-1"><i class="fas fa-circle text-purple-500"></i> En Verificación</span>
+                <span class="flex items-center gap-1"><i class="fas fa-circle text-emerald-500"></i> Cerrada (Ok)</span>
+            </div>
+
+            <!-- Gráfico -->
+            <div class="flex-1 w-full relative min-h-[250px]">
                 <canvas id="proveedorChart"></canvas>
             </div>
         </div>
@@ -221,6 +256,8 @@
     <script>
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx15wi9JZETi278WnqdS2L_5xq2bdwr7nV53gJRi1UknR8oec3sUhQ1Nk4GnflCmRIG/exec';
         let chartInstance = null;
+        let ticketsData = []; 
+        let proveedoresData = [];
 
         // Buscador
         document.getElementById('buscador').addEventListener('input', function(e) {
@@ -252,6 +289,7 @@
         // Modal de Dashboard
         function abrirDashboard() {
             document.getElementById('dashboardModal').classList.remove('hidden');
+            actualizarDashboardUI();
         }
         function cerrarDashboard() {
             document.getElementById('dashboardModal').classList.add('hidden');
@@ -289,36 +327,136 @@
             finally { btn.innerHTML = '<i class="fas fa-paper-plane"></i> Desplegar Ticket'; btn.disabled = false; setTimeout(() => msg.classList.add('hidden'), 5000); }
         });
 
-        // Cargar y Renderizar
+        // Extractor de horas
+        function parseHoras(t) {
+            if ((t.estado === 'Cerrada' || t.estado === 'En Verificación') && t.tiempo) {
+                return parseInt(t.tiempo.toString().replace(/\D/g, '')) || 0;
+            }
+            return Math.floor((new Date() - new Date(t.fecha)) / (1000 * 60 * 60));
+        }
+
+        // Dashboard Analítico
+        function actualizarDashboardUI() {
+            const filtroVal = document.getElementById('filtroDashboard').value;
+            const ticketsFiltrados = filtroVal === "TODOS" ? ticketsData : ticketsData.filter(t => t.proveedor === filtroVal);
+            
+            // Cálculos para KPIs superiores
+            let atenciones = 0;
+            let sumaHoras = 0;
+            
+            ticketsFiltrados.forEach(t => {
+                if(t.estado === 'Cerrada' || t.estado === 'En Verificación') {
+                    atenciones++;
+                    sumaHoras += parseHoras(t);
+                }
+            });
+
+            document.getElementById('dash-total').textContent = ticketsFiltrados.length;
+            document.getElementById('dash-atenciones').textContent = atenciones;
+            document.getElementById('dash-tiempo').textContent = atenciones > 0 ? Math.round(sumaHoras / atenciones) + ' hrs' : '0 hrs';
+
+            const ctx = document.getElementById('proveedorChart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+
+            // Toggle Leyenda
+            document.getElementById('leyendaEstados').style.display = filtroVal === "TODOS" ? "none" : "flex";
+
+            if (filtroVal === "TODOS") {
+                // Gráfico Comparativo: Proveedores vs Solicitudes
+                const labels = proveedoresData.map(p => p.nombre);
+                const dataTotal = labels.map(l => ticketsData.filter(t => t.proveedor === l).length);
+                const dataResueltos = labels.map(l => ticketsData.filter(t => t.proveedor === l && (t.estado === 'Cerrada' || t.estado === 'En Verificación')).length);
+
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [
+                            { label: 'Total Solicitudes', data: dataTotal, backgroundColor: '#cbd5e1', borderRadius: 6 },
+                            { label: 'Atenciones Resueltas', data: dataResueltos, backgroundColor: '#1A52A0', borderRadius: 6 }
+                        ]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: { legend: { position: 'top', labels: { font: { family: "'Inter', sans-serif" } } } },
+                        scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: "'Inter', sans-serif" } } }, x: { ticks: { font: { family: "'Inter', sans-serif", weight: '600' } } } }
+                    }
+                });
+            } else {
+                // Gráfico Analítico: Ticket x Ticket (Eje X: Ticket, Eje Y: Horas)
+                const labels = ticketsFiltrados.map(t => t.ticket);
+                const dataHoras = ticketsFiltrados.map(t => parseHoras(t));
+                const bgColors = ticketsFiltrados.map(t => {
+                    if(t.estado === 'Pendiente') return '#f59e0b';
+                    if(t.estado === 'En atención') return '#3b82f6';
+                    if(t.estado === 'En Verificación') return '#a855f7';
+                    return '#10b981'; 
+                });
+
+                chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{ label: 'Tiempo de Respuesta (SLA)', data: dataHoras, backgroundColor: bgColors, borderRadius: 6, maxBarThickness: 40 }]
+                    },
+                    options: {
+                        responsive: true, maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { 
+                                backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 8,
+                                callbacks: { label: function(context) { return ` ${context.raw} hrs (${ticketsFiltrados[context.dataIndex].estado})`; } }
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { font: { family: "'Inter', sans-serif", size: 11 } } },
+                            y: { beginAtZero: true, title: { display: true, text: 'Horas consumidas', font: { family: "'Inter', sans-serif", weight: '600' } }, ticks: { font: { family: "'Inter', sans-serif" } } }
+                        }
+                    }
+                });
+            }
+        }
+
+        // Cargar y Renderizar Data Principal
         async function cargarDatosGenerales() {
             const tbody = document.getElementById('tablaCuerpo');
             const selectProv = document.getElementById('proveedor');
-            tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400 font-medium"><i class="fas fa-spinner fa-spin mr-2"></i> Sincronizando...</td></tr>';
+            const filtroDash = document.getElementById('filtroDashboard');
+            
+            tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400 font-medium"><i class="fas fa-spinner fa-spin mr-2"></i> Sincronizando datos...</td></tr>';
             try {
                 const response = await fetch(APPS_SCRIPT_URL);
                 const data = await response.json();
                 
-                if(data.proveedores) {
+                ticketsData = data.tickets || data;
+                proveedoresData = data.proveedores || [];
+
+                // Llenar selects
+                if(proveedoresData.length > 0) {
+                    const prevProv = selectProv.value;
+                    const prevFiltro = filtroDash.value;
+                    
                     selectProv.innerHTML = '<option value="">Seleccionar...</option>';
-                    data.proveedores.forEach(prov => selectProv.insertAdjacentHTML('beforeend', `<option value="${prov.nombre}">${prov.nombre}</option>`));
+                    filtroDash.innerHTML = '<option value="TODOS">Todos los Proveedores</option>';
+                    
+                    proveedoresData.forEach(prov => {
+                        selectProv.insertAdjacentHTML('beforeend', `<option value="${prov.nombre}">${prov.nombre}</option>`);
+                        filtroDash.insertAdjacentHTML('beforeend', `<option value="${prov.nombre}">${prov.nombre}</option>`);
+                    });
+                    
+                    selectProv.value = prevProv;
+                    filtroDash.value = prevFiltro || 'TODOS';
                 }
 
                 tbody.innerHTML = '';
                 let abiertos = 0, proximos = 0, vencidos = 0;
-                const ahora = new Date();
-                const statsGrafico = {};
                 
-                if(data.proveedores) { data.proveedores.forEach(p => statsGrafico[p.nombre] = { 'Pendiente': 0, 'En atención': 0, 'En Verificación': 0, 'Cerrada': 0 }); }
-                
-                (data.tickets || data).forEach(t => { 
-                    if(!statsGrafico[t.proveedor]) statsGrafico[t.proveedor] = { 'Pendiente': 0, 'En atención': 0, 'En Verificación': 0, 'Cerrada': 0 };
-                    if(statsGrafico[t.proveedor][t.estado] !== undefined) statsGrafico[t.proveedor][t.estado]++;
-
+                ticketsData.forEach(t => { 
                     let colorEstado = 'bg-slate-100 text-slate-600', horasSLA = 0, htmlSLA = '', botonAccion = '-';
                     let rowClass = "hover:bg-slate-50 transition-colors border-b border-slate-50", rowIcon = "";
 
                     if (t.estado !== 'Cerrada') {
-                        horasSLA = Math.floor((ahora - new Date(t.fecha)) / (1000 * 60 * 60));
+                        horasSLA = parseHoras(t);
                         abiertos++;
                         
                         if (horasSLA >= 48) { vencidos++; htmlSLA = `<span class="text-red-500 font-bold">${horasSLA} hrs</span>`; }
@@ -355,40 +493,10 @@
                 document.getElementById('kpi-proximos').textContent = proximos;
                 document.getElementById('kpi-vencidos').textContent = vencidos;
                 
-                actualizarGrafico(statsGrafico);
-            } catch (error) { tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-red-400"><i class="fas fa-wifi mr-2"></i> Sin conexión a la base</td></tr>'; }
-        }
-
-        // Gráfico Estilizado Moderno (Barras Horizontales Delgadas)
-        function actualizarGrafico(stats) {
-            const ctx = document.getElementById('proveedorChart').getContext('2d');
-            const labels = Object.keys(stats);
-            if (chartInstance) { chartInstance.destroy(); }
-
-            chartInstance = new Chart(ctx, {
-                type: 'bar', // Barra Horizontal
-                data: {
-                    labels: labels,
-                    datasets: [
-                        { label: 'Pend.', data: labels.map(l => stats[l]['Pendiente']), backgroundColor: '#f59e0b', borderRadius: 20, barThickness: 12 },
-                        { label: 'Aten.', data: labels.map(l => stats[l]['En atención']), backgroundColor: '#3b82f6', borderRadius: 20, barThickness: 12 },
-                        { label: 'Verif.', data: labels.map(l => stats[l]['En Verificación']), backgroundColor: '#a855f7', borderRadius: 20, barThickness: 12 },
-                        { label: 'Ok', data: labels.map(l => stats[l]['Cerrada']), backgroundColor: '#10b981', borderRadius: 20, barThickness: 12 }
-                    ]
-                },
-                options: {
-                    indexAxis: 'y', 
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: {
-                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 6, font: { family: "'Inter', sans-serif", size: 11, weight: '500' }, color: '#64748b' } },
-                        tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 8, titleFont: { family: "'Inter', sans-serif" }, bodyFont: { family: "'Inter', sans-serif" } }
-                    },
-                    scales: {
-                        x: { stacked: true, display: false }, 
-                        y: { stacked: true, grid: { display: false }, border: { display: false }, ticks: { font: { family: "'Inter', sans-serif", weight: '600' }, color: '#475569' } }
-                    }
+                if(!document.getElementById('dashboardModal').classList.contains('hidden')) {
+                    actualizarDashboardUI();
                 }
-            });
+            } catch (error) { tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-red-400"><i class="fas fa-wifi mr-2"></i> Sin conexión a la base de datos</td></tr>'; }
         }
 
         async function cerrarTicket(ticketId) {
