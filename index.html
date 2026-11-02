@@ -6,6 +6,8 @@
     <title>SGMAP - Centro de Control</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Librería para el Dashboard (Gráficos) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
           theme: { extend: { colors: { transaltisa: { primary: '#0B336A', secondary: '#1A52A0', hover: '#134080' } } } }
@@ -74,8 +76,9 @@
             </div>
         </div>
 
-        <!-- Panel Derecho: Dashboard y KPIs -->
+        <!-- Panel Derecho: Dashboard, KPIs y Tabla -->
         <div class="lg:col-span-2 space-y-6">
+            <!-- Tarjetas KPIs -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-transaltisa-secondary">
                     <div class="text-slate-500 text-sm font-semibold mb-1">Tickets Abiertos</div>
@@ -91,6 +94,18 @@
                 </div>
             </div>
 
+            <!-- DASHBOARD: Rendimiento por Proveedor -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+                <div class="flex items-center gap-2 mb-4">
+                    <i class="fas fa-chart-bar text-transaltisa-secondary text-xl"></i>
+                    <h2 class="text-lg font-bold text-slate-700">Rendimiento por Proveedor</h2>
+                </div>
+                <div class="w-full h-48">
+                    <canvas id="proveedorChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Tabla Inteligente -->
             <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="p-4 border-b border-slate-100 bg-slate-50 flex flex-wrap justify-between items-center gap-4">
                     <h2 class="text-lg font-bold text-slate-700">Seguimiento en Tiempo Real</h2>
@@ -164,6 +179,7 @@
         const form = document.getElementById('ticketForm');
         const statusMsg = document.getElementById('statusMsg');
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx15wi9JZETi278WnqdS2L_5xq2bdwr7nV53gJRi1UknR8oec3sUhQ1Nk4GnflCmRIG/exec';
+        let chartInstance = null; // Variable global para manejar el gráfico
 
         document.getElementById('buscador').addEventListener('input', function(e) {
             const filtro = e.target.value.toLowerCase();
@@ -265,6 +281,7 @@
                 const response = await fetch(APPS_SCRIPT_URL);
                 const data = await response.json();
                 
+                // 1. Cargar Proveedores
                 if(data.proveedores) {
                     selectProv.innerHTML = '<option value="">Seleccionar...</option>';
                     data.proveedores.forEach(prov => {
@@ -272,11 +289,27 @@
                     });
                 }
 
+                // 2. Variables para Gráficos y KPIs
                 tbody.innerHTML = '';
                 let abiertos = 0, proximos = 0, vencidos = 0;
                 const ahora = new Date();
                 
+                const statsGrafico = {};
+                if(data.proveedores) {
+                    data.proveedores.forEach(p => {
+                        statsGrafico[p.nombre] = { 'Pendiente': 0, 'En atención': 0, 'En Verificación': 0, 'Cerrada': 0 };
+                    });
+                }
+                
+                // 3. Procesar Tickets (Tabla y KPIs)
                 (data.tickets || data).forEach(t => { 
+                    // Contar para el Gráfico (si el proveedor existe en la lista)
+                    if(!statsGrafico[t.proveedor]) statsGrafico[t.proveedor] = { 'Pendiente': 0, 'En atención': 0, 'En Verificación': 0, 'Cerrada': 0 };
+                    if(statsGrafico[t.proveedor][t.estado] !== undefined) {
+                        statsGrafico[t.proveedor][t.estado]++;
+                    }
+
+                    // Calcular variables de Tabla
                     let colorEstado = 'bg-slate-100 text-slate-700'; 
                     let horasSLA = 0;
                     let htmlSLA = '';
@@ -293,7 +326,6 @@
                         else if (horasSLA >= 24) { proximos++; htmlSLA = `<span class="text-amber-500 font-bold"><i class="fas fa-clock"></i> ${horasSLA} hrs</span>`; }
                         else { htmlSLA = `<span class="text-slate-600 font-medium">${horasSLA} hrs</span>`; }
                         
-                        // Resaltado visual para tickets críticos
                         if (t.prioridad === 'Crítica') {
                             rowClass = "bg-red-50 hover:bg-red-100 transition-colors border-b border-red-200";
                             rowIcon = `<i class="fas fa-fire text-red-500 mr-2" title="Ticket Crítico"></i>`;
@@ -326,9 +358,48 @@
                 document.getElementById('kpi-proximos').textContent = proximos;
                 document.getElementById('kpi-vencidos').textContent = vencidos;
                 
+                // 4. Dibujar Gráfico Dashboard
+                actualizarGrafico(statsGrafico);
+                
             } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500"><i class="fas fa-times-circle mr-1"></i> Error de conexión</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500"><i class="fas fa-times-circle mr-1"></i> Error de conexión al cargar datos</td></tr>';
             }
+        }
+
+        function actualizarGrafico(stats) {
+            const ctx = document.getElementById('proveedorChart').getContext('2d');
+            const labels = Object.keys(stats);
+            
+            const dataPendiente = labels.map(l => stats[l]['Pendiente']);
+            const dataAtencion = labels.map(l => stats[l]['En atención']);
+            const dataVerificacion = labels.map(l => stats[l]['En Verificación']);
+            const dataCerrada = labels.map(l => stats[l]['Cerrada']);
+
+            if (chartInstance) { chartInstance.destroy(); }
+
+            chartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Pendientes', data: dataPendiente, backgroundColor: '#f59e0b' },
+                        { label: 'En Atención', data: dataAtencion, backgroundColor: '#3b82f6' },
+                        { label: 'En Verificación', data: dataVerificacion, backgroundColor: '#a855f7' },
+                        { label: 'Cerrados', data: dataCerrada, backgroundColor: '#22c55e' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { stacked: true },
+                        y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                    }
+                }
+            });
         }
 
         async function cerrarTicket(ticketId) {
