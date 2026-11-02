@@ -161,18 +161,29 @@
         </div>
     </div>
 
-    <!-- MODAL DASHBOARD PROFESIONAL (SLA) -->
+    <!-- MODAL DASHBOARD PROFESIONAL (SLA) CON FILTROS DE FECHA -->
     <div id="dashboardModal" class="hidden fixed inset-0 bg-slate-900/70 z-[70] flex justify-center items-center backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl p-7 border-t-4 border-transaltisa-secondary relative flex flex-col h-[85vh]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl p-7 border-t-4 border-transaltisa-secondary relative flex flex-col h-[90vh]">
             
-            <!-- Cabecera del Dashboard -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
+            <!-- Cabecera con Filtros -->
+            <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
                 <h2 class="text-xl font-bold text-slate-800"><i class="fas fa-chart-bar text-transaltisa-secondary mr-2"></i> Rendimiento Analítico (SLA)</h2>
-                <div class="flex items-center gap-3 w-full md:w-auto">
-                    <select id="filtroDashboard" class="w-full md:w-64 rounded-xl border-slate-200 bg-slate-50 border p-2 text-sm focus:ring-2 focus:ring-transaltisa-secondary outline-none font-semibold text-slate-700" onchange="actualizarDashboardUI()">
+                
+                <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                    <!-- Selector de Proveedor -->
+                    <select id="filtroDashboard" class="rounded-xl border-slate-200 bg-slate-50 border p-2 text-sm focus:ring-2 focus:ring-transaltisa-secondary outline-none font-semibold text-slate-700" onchange="actualizarDashboardUI()">
                         <option value="TODOS">Todos los Proveedores</option>
                     </select>
-                    <button onclick="cerrarDashboard()" class="text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-slate-100 h-10 w-10 rounded-full transition-colors flex justify-center items-center flex-shrink-0"><i class="fas fa-times text-lg"></i></button>
+
+                    <!-- Selector de Rango de Fecha / Temporalidad -->
+                    <select id="filtroTemporalidad" class="rounded-xl border-slate-200 bg-slate-50 border p-2 text-sm focus:ring-2 focus:ring-transaltisa-secondary outline-none font-semibold text-slate-700" onchange="actualizarDashboardUI()">
+                        <option value="TODO">Todo el Histórico</option>
+                        <option value="HOY">Hoy</option>
+                        <option value="SEMANA">Últimos 7 días</option>
+                        <option value="MES">Este Mes</option>
+                    </select>
+
+                    <button onclick="cerrarDashboard()" class="text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-slate-100 h-10 w-10 rounded-full transition-colors flex justify-center items-center flex-shrink-0 ml-auto lg:ml-0"><i class="fas fa-times text-lg"></i></button>
                 </div>
             </div>
 
@@ -201,7 +212,7 @@
                 </div>
             </div>
 
-            <!-- Leyenda de colores dinámica -->
+            <!-- Leyenda de colores -->
             <div id="leyendaEstados" class="flex justify-center gap-5 text-xs font-bold text-slate-500 mb-2">
                 <span class="flex items-center gap-1"><i class="fas fa-circle text-amber-500"></i> Pendiente</span>
                 <span class="flex items-center gap-1"><i class="fas fa-circle text-blue-500"></i> En Atención</span>
@@ -259,7 +270,6 @@
         let ticketsData = []; 
         let proveedoresData = [];
 
-        // Buscador
         document.getElementById('buscador').addEventListener('input', function(e) {
             const filtro = e.target.value.toLowerCase();
             const filas = document.querySelectorAll('#tablaCuerpo tr');
@@ -268,7 +278,6 @@
             });
         });
 
-        // Modales Secundarios
         function abrirModalPass() {
             document.getElementById('adminPass').value = '';
             document.getElementById('passModal').classList.remove('hidden');
@@ -286,7 +295,6 @@
             document.getElementById('adminMsg').classList.add('hidden');
         }
 
-        // Modal de Dashboard
         function abrirDashboard() {
             document.getElementById('dashboardModal').classList.remove('hidden');
             actualizarDashboardUI();
@@ -295,7 +303,6 @@
             document.getElementById('dashboardModal').classList.add('hidden');
         }
 
-        // Enviar Admin
         document.getElementById('adminForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnGuardarProv');
@@ -311,7 +318,6 @@
             finally { btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar Datos'; btn.disabled = false; }
         });
 
-        // Enviar Ticket
         document.getElementById('ticketForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('ticketForm').querySelector('button');
@@ -327,7 +333,6 @@
             finally { btn.innerHTML = '<i class="fas fa-paper-plane"></i> Desplegar Ticket'; btn.disabled = false; setTimeout(() => msg.classList.add('hidden'), 5000); }
         });
 
-        // Extractor de horas
         function parseHoras(t) {
             if ((t.estado === 'Cerrada' || t.estado === 'En Verificación') && t.tiempo) {
                 return parseInt(t.tiempo.toString().replace(/\D/g, '')) || 0;
@@ -335,12 +340,34 @@
             return Math.floor((new Date() - new Date(t.fecha)) / (1000 * 60 * 60));
         }
 
-        // Dashboard Analítico
+        // Filtrado por Temporalidad (Día, Semana, Mes, Todo)
+        function filtrarPorTemporalidad(tickets) {
+            const modo = document.getElementById('filtroTemporalidad').value;
+            if (modo === 'TODO') return tickets;
+
+            const ahora = new Date();
+            return tickets.filter(t => {
+                const fechaTicket = new Date(t.fecha);
+                if (modo === 'HOY') {
+                    return fechaTicket.toDateString() === ahora.toDateString();
+                } else if (modo === 'SEMANA') {
+                    const diferenciaDias = (ahora - fechaTicket) / (1000 * 60 * 60 * 24);
+                    return diferenciaDias <= 7;
+                } else if (modo === 'MES') {
+                    return fechaTicket.getMonth() === ahora.getMonth() && fechaTicket.getFullYear() === ahora.getFullYear();
+                }
+                return true;
+            });
+        }
+
+        // Dashboard Analítico Actualizado
         function actualizarDashboardUI() {
-            const filtroVal = document.getElementById('filtroDashboard').value;
-            const ticketsFiltrados = filtroVal === "TODOS" ? ticketsData : ticketsData.filter(t => t.proveedor === filtroVal);
+            const proveedorSel = document.getElementById('filtroDashboard').value;
             
-            // Cálculos para KPIs superiores
+            // 1. Filtrar por Proveedor y luego por Temporalidad
+            let ticketsFiltrados = proveedorSel === "TODOS" ? ticketsData : ticketsData.filter(t => t.proveedor === proveedorSel);
+            ticketsFiltrados = filtrarPorTemporalidad(ticketsFiltrados);
+            
             let atenciones = 0;
             let sumaHoras = 0;
             
@@ -358,14 +385,12 @@
             const ctx = document.getElementById('proveedorChart').getContext('2d');
             if (chartInstance) chartInstance.destroy();
 
-            // Toggle Leyenda
-            document.getElementById('leyendaEstados').style.display = filtroVal === "TODOS" ? "none" : "flex";
+            document.getElementById('leyendaEstados').style.display = proveedorSel === "TODOS" ? "none" : "flex";
 
-            if (filtroVal === "TODOS") {
-                // Gráfico Comparativo: Proveedores vs Solicitudes
+            if (proveedorSel === "TODOS") {
                 const labels = proveedoresData.map(p => p.nombre);
-                const dataTotal = labels.map(l => ticketsData.filter(t => t.proveedor === l).length);
-                const dataResueltos = labels.map(l => ticketsData.filter(t => t.proveedor === l && (t.estado === 'Cerrada' || t.estado === 'En Verificación')).length);
+                const dataTotal = labels.map(l => ticketsFiltrados.filter(t => t.proveedor === l).length);
+                const dataResueltos = labels.map(l => ticketsFiltrados.filter(t => t.proveedor === l && (t.estado === 'Cerrada' || t.estado === 'En Verificación')).length);
 
                 chartInstance = new Chart(ctx, {
                     type: 'bar',
@@ -383,7 +408,6 @@
                     }
                 });
             } else {
-                // Gráfico Analítico: Ticket x Ticket (Eje X: Ticket, Eje Y: Horas)
                 const labels = ticketsFiltrados.map(t => t.ticket);
                 const dataHoras = ticketsFiltrados.map(t => parseHoras(t));
                 const bgColors = ticketsFiltrados.map(t => {
@@ -417,7 +441,6 @@
             }
         }
 
-        // Cargar y Renderizar Data Principal
         async function cargarDatosGenerales() {
             const tbody = document.getElementById('tablaCuerpo');
             const selectProv = document.getElementById('proveedor');
@@ -431,7 +454,6 @@
                 ticketsData = data.tickets || data;
                 proveedoresData = data.proveedores || [];
 
-                // Llenar selects
                 if(proveedoresData.length > 0) {
                     const prevProv = selectProv.value;
                     const prevFiltro = filtroDash.value;
