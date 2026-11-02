@@ -4,44 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGMAP - Centro de Control</title>
+    <!-- Tipografía Moderna -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Librería para el Dashboard (Gráficos) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
-          theme: { extend: { colors: { transaltisa: { primary: '#0B336A', secondary: '#1A52A0', hover: '#134080' } } } }
+          theme: { 
+            extend: { 
+                fontFamily: { sans: ['Inter', 'sans-serif'] },
+                colors: { transaltisa: { primary: '#0B336A', secondary: '#1A52A0', hover: '#134080' } },
+                boxShadow: { 'modern': '0 10px 40px -10px rgba(0,0,0,0.08)' }
+            } 
+          }
         }
     </script>
+    <style>
+        /* Scrollbar estilizado */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        body { background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); min-height: 100vh; }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800 font-sans antialiased relative">
+<body class="text-slate-800 antialiased relative">
 
-    <nav class="bg-transaltisa-primary text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+    <!-- Navbar Glassmorphism -->
+    <nav class="sticky top-0 z-40 bg-transaltisa-primary/95 backdrop-blur-md text-white shadow-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <i class="fas fa-satellite-dish text-2xl text-blue-300"></i>
-                <h1 onclick="abrirModalPass()" class="text-xl font-bold tracking-wider cursor-pointer hover:text-blue-200 transition">SGMAP <span class="text-sm font-light text-blue-200">| Centro de Control</span></h1>
+                <div class="p-2 bg-white/10 rounded-lg"><i class="fas fa-satellite-dish text-xl text-blue-200"></i></div>
+                <h1 onclick="abrirModalPass()" class="text-xl font-bold tracking-wide cursor-pointer hover:text-blue-200 transition">SGMAP <span class="text-sm font-normal text-blue-200 opacity-80">| Control Center</span></h1>
             </div>
-            <div class="text-sm font-medium"><i class="fas fa-user-circle text-lg align-middle mr-1"></i> Centro de Control</div>
+            <div class="text-sm font-medium flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
+                <i class="fas fa-user-circle text-lg"></i> Operador Activo
+            </div>
         </div>
     </nav>
 
     <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Panel Izquierdo: Formulario -->
+        <!-- Formulario Moderno -->
         <div class="lg:col-span-1">
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
-                <h2 class="text-lg font-bold mb-4 text-slate-700 border-b pb-2">Generar Nuevo Ticket</h2>
-                <form id="ticketForm" class="space-y-4">
+            <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-7">
+                <h2 class="text-lg font-bold mb-6 text-slate-800 flex items-center gap-2">
+                    <i class="fas fa-plus-circle text-transaltisa-secondary"></i> Nuevo Requerimiento
+                </h2>
+                <form id="ticketForm" class="space-y-5">
                     <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Proveedor</label>
-                        <select id="proveedor" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-transaltisa-secondary outline-none" required>
-                            <option value="">Cargando proveedores...</option>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Proveedor</label>
+                        <select id="proveedor" class="w-full rounded-xl border-slate-200 bg-slate-50 border p-3 text-sm focus:bg-white focus:ring-2 focus:ring-transaltisa-secondary/50 outline-none transition-all" required>
+                            <option value="">Cargando...</option>
                         </select>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Proyecto / Operación</label>
-                        <select id="proyecto" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-transaltisa-secondary outline-none" required>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Proyecto</label>
+                        <select id="proyecto" class="w-full rounded-xl border-slate-200 bg-slate-50 border p-3 text-sm focus:bg-white focus:ring-2 focus:ring-transaltisa-secondary/50 outline-none transition-all" required>
                             <option value="">Seleccionar Proyecto...</option>
                             <option value="Transaltisa">Transaltisa</option>
                             <option value="Quellaveco">Quellaveco</option>
@@ -52,12 +72,12 @@
                     </div>
                     <div class="grid grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-sm font-medium text-slate-600 mb-1">Unidad</label>
-                            <input type="text" id="unidad" placeholder="Ej. BEY899" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-transaltisa-secondary uppercase outline-none" required>
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Unidad</label>
+                            <input type="text" id="unidad" placeholder="Ej. BEY899" class="w-full rounded-xl border-slate-200 bg-slate-50 border p-3 text-sm focus:bg-white focus:ring-2 focus:ring-transaltisa-secondary/50 uppercase outline-none transition-all" required>
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-slate-600 mb-1">Prioridad</label>
-                            <select id="prioridad" class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-transaltisa-secondary outline-none">
+                            <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Prioridad</label>
+                            <select id="prioridad" class="w-full rounded-xl border-slate-200 bg-slate-50 border p-3 text-sm focus:bg-white focus:ring-2 focus:ring-transaltisa-secondary/50 outline-none transition-all">
                                 <option value="Media">Media (48h)</option>
                                 <option value="Alta">Alta (24h)</option>
                                 <option value="Crítica">Crítica (4h)</option>
@@ -65,72 +85,82 @@
                         </div>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-slate-600 mb-1">Detalle de Incidencia</label>
-                        <textarea id="incidencia" rows="3" placeholder="Descripción de la falla..." class="w-full rounded-lg border-slate-300 border p-2 focus:ring-2 focus:ring-transaltisa-secondary outline-none" required></textarea>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Detalle</label>
+                        <textarea id="incidencia" rows="3" placeholder="Descripción clara del problema..." class="w-full rounded-xl border-slate-200 bg-slate-50 border p-3 text-sm focus:bg-white focus:ring-2 focus:ring-transaltisa-secondary/50 outline-none transition-all resize-none" required></textarea>
                     </div>
-                    <button type="submit" class="w-full bg-transaltisa-secondary hover:bg-transaltisa-hover text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-md flex justify-center items-center gap-2">
-                        <i class="fas fa-paper-plane"></i> Enviar y Notificar
+                    <button type="submit" class="w-full bg-gradient-to-r from-transaltisa-primary to-transaltisa-secondary hover:shadow-lg hover:-translate-y-0.5 text-white font-semibold py-3.5 px-4 rounded-xl transition-all flex justify-center items-center gap-2">
+                        <i class="fas fa-paper-plane"></i> Desplegar Ticket
                     </button>
                     <p id="statusMsg" class="text-sm text-center font-medium mt-2 hidden"></p>
                 </form>
             </div>
         </div>
 
-        <!-- Panel Derecho: Dashboard, KPIs y Tabla -->
+        <!-- Dashboard y KPIs -->
         <div class="lg:col-span-2 space-y-6">
-            <!-- Tarjetas KPIs -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-transaltisa-secondary">
-                    <div class="text-slate-500 text-sm font-semibold mb-1">Tickets Abiertos</div>
-                    <div id="kpi-abiertos" class="text-3xl font-bold text-slate-800">0</div>
+            <!-- KPIs Premium -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-6 flex items-center justify-between">
+                    <div>
+                        <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">En Proceso</div>
+                        <div id="kpi-abiertos" class="text-4xl font-black text-slate-800">0</div>
+                    </div>
+                    <div class="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 text-xl"><i class="fas fa-layer-group"></i></div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-l-amber-500">
-                    <div class="text-slate-500 text-sm font-semibold mb-1">Próximos a Vencer</div>
-                    <div id="kpi-proximos" class="text-3xl font-bold text-slate-800">0</div>
+                <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-6 flex items-center justify-between">
+                    <div>
+                        <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Riesgo SLA</div>
+                        <div id="kpi-proximos" class="text-4xl font-black text-amber-500">0</div>
+                    </div>
+                    <div class="h-12 w-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 text-xl"><i class="fas fa-clock"></i></div>
                 </div>
-                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 border-l-4 border-l-red-500">
-                    <div class="text-slate-500 text-sm font-semibold mb-1">Vencidos (>48h)</div>
-                    <div id="kpi-vencidos" class="text-3xl font-bold text-slate-800">0</div>
+                <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-6 flex items-center justify-between">
+                    <div>
+                        <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Vencidos</div>
+                        <div id="kpi-vencidos" class="text-4xl font-black text-red-500">0</div>
+                    </div>
+                    <div class="h-12 w-12 rounded-full bg-red-50 flex items-center justify-center text-red-500 text-xl"><i class="fas fa-exclamation-triangle"></i></div>
                 </div>
             </div>
 
-            <!-- DASHBOARD: Rendimiento por Proveedor -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
-                <div class="flex items-center gap-2 mb-4">
-                    <i class="fas fa-chart-bar text-transaltisa-secondary text-xl"></i>
-                    <h2 class="text-lg font-bold text-slate-700">Rendimiento por Proveedor</h2>
+            <!-- Gráfico Modernizado (Sorpresa) -->
+            <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-base font-bold text-slate-800"><i class="fas fa-chart-pie text-transaltisa-secondary mr-2"></i>Eficiencia de Proveedores</h2>
+                    <span class="text-xs font-medium bg-slate-100 text-slate-500 px-3 py-1 rounded-full">Tiempo Real</span>
                 </div>
-                <div class="w-full h-48">
+                <div class="w-full h-44">
                     <canvas id="proveedorChart"></canvas>
                 </div>
             </div>
 
-            <!-- Tabla Inteligente -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="p-4 border-b border-slate-100 bg-slate-50 flex flex-wrap justify-between items-center gap-4">
-                    <h2 class="text-lg font-bold text-slate-700">Seguimiento en Tiempo Real</h2>
+            <!-- Tabla Elegante -->
+            <div class="bg-white rounded-2xl shadow-modern border border-slate-100 overflow-hidden">
+                <div class="p-5 border-b border-slate-100 flex flex-wrap justify-between items-center gap-4 bg-white/50">
+                    <h2 class="text-base font-bold text-slate-800">Historial de Operaciones</h2>
                     <div class="flex items-center gap-3">
                         <div class="relative">
-                            <i class="fas fa-search absolute left-3 top-2.5 text-slate-400"></i>
-                            <input type="text" id="buscador" placeholder="Buscar placa, ticket..." class="pl-9 pr-4 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-transaltisa-secondary w-full md:w-64 outline-none">
+                            <i class="fas fa-search absolute left-3.5 top-2.5 text-slate-400 text-sm"></i>
+                            <input type="text" id="buscador" placeholder="Buscar ID, placa..." class="pl-10 pr-4 py-2 bg-slate-50 border-none rounded-full text-sm focus:ring-2 focus:ring-transaltisa-secondary/30 w-full md:w-64 outline-none transition-all">
                         </div>
-                        <button class="text-transaltisa-secondary bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-lg text-sm font-semibold transition" onclick="cargarDatosGenerales()"><i class="fas fa-sync-alt mr-1"></i></button>
+                        <button class="text-slate-500 bg-slate-50 hover:bg-slate-100 hover:text-transaltisa-secondary h-9 w-9 rounded-full flex items-center justify-center transition-all" onclick="cargarDatosGenerales()"><i class="fas fa-sync-alt text-sm"></i></button>
                     </div>
                 </div>
                 
-                <div class="overflow-x-auto max-h-96">
+                <div class="overflow-x-auto max-h-[400px]">
                     <table class="w-full text-left border-collapse">
-                        <thead class="sticky top-0 bg-white shadow-sm">
-                            <tr class="text-slate-500 text-xs uppercase tracking-wider border-b">
-                                <th class="p-4 font-semibold">Ticket</th>
-                                <th class="p-4 font-semibold">Proveedor</th>
-                                <th class="p-4 font-semibold">Unidad</th>
-                                <th class="p-4 font-semibold">Estado</th>
-                                <th class="p-4 font-semibold">SLA (Real)</th>
-                                <th class="p-4 font-semibold text-center">Acción</th>
+                        <thead class="sticky top-0 bg-white/90 backdrop-blur-sm shadow-sm z-10">
+                            <tr class="text-slate-400 text-xs font-semibold uppercase tracking-wider">
+                                <th class="px-6 py-4">Ticket</th>
+                                <th class="px-6 py-4">Proveedor</th>
+                                <th class="px-6 py-4">Unidad</th>
+                                <th class="px-6 py-4">Estado</th>
+                                <th class="px-6 py-4">Tiempo</th>
+                                <th class="px-6 py-4 text-center">Acción</th>
                             </tr>
                         </thead>
-                        <tbody id="tablaCuerpo" class="text-sm text-slate-600 divide-y divide-slate-100">
+                        <tbody id="tablaCuerpo" class="text-sm divide-y divide-slate-50">
+                            <!-- Filas dinámicas -->
                         </tbody>
                     </table>
                 </div>
@@ -139,36 +169,37 @@
     </div>
 
     <!-- MODAL DE CONTRASEÑA -->
-    <div id="passModal" class="hidden fixed inset-0 bg-slate-900 bg-opacity-60 z-[60] flex justify-center items-center backdrop-blur-sm">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-sm p-6 relative">
-            <h2 class="text-lg font-bold text-slate-800 mb-4"><i class="fas fa-lock text-slate-500 mr-2"></i>Acceso Restringido</h2>
-            <input type="password" id="adminPass" placeholder="Ingrese contraseña" class="w-full rounded-lg border-slate-300 border p-2.5 focus:ring-2 focus:ring-transaltisa-secondary outline-none mb-4" onkeypress="if(event.key === 'Enter') verificarClave()">
-            <div class="flex justify-end gap-2">
-                <button onclick="document.getElementById('passModal').classList.add('hidden')" class="px-4 py-2 text-slate-500 hover:text-slate-700 font-medium">Cancelar</button>
-                <button onclick="verificarClave()" class="px-4 py-2 bg-transaltisa-secondary text-white rounded-lg hover:bg-transaltisa-hover font-bold">Ingresar</button>
+    <div id="passModal" class="hidden fixed inset-0 bg-slate-900/60 z-[60] flex justify-center items-center backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-7 transform scale-100 transition-transform">
+            <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-4 mx-auto text-slate-600"><i class="fas fa-lock text-xl"></i></div>
+            <h2 class="text-center text-lg font-bold text-slate-800 mb-6">Acceso Restringido</h2>
+            <!-- AQUÍ ESTÁ EL TIPO PASSWORD QUE OCULTA LOS CARACTERES -->
+            <input type="password" id="adminPass" placeholder="••••••••" class="w-full rounded-xl border-slate-200 bg-slate-50 border p-3 text-center tracking-widest focus:bg-white focus:ring-2 focus:ring-transaltisa-secondary outline-none mb-6" onkeypress="if(event.key === 'Enter') verificarClave()">
+            <div class="flex gap-3">
+                <button onclick="document.getElementById('passModal').classList.add('hidden')" class="flex-1 py-3 text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 font-semibold transition-colors">Cancelar</button>
+                <button onclick="verificarClave()" class="flex-1 py-3 bg-transaltisa-secondary text-white rounded-xl hover:bg-transaltisa-hover font-bold transition-colors">Verificar</button>
             </div>
         </div>
     </div>
 
     <!-- MODAL DE ADMINISTRACIÓN -->
-    <div id="adminModal" class="hidden fixed inset-0 bg-slate-900 bg-opacity-60 z-50 flex justify-center items-center backdrop-blur-sm">
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md p-6 border-t-4 border-transaltisa-primary relative transform transition-all">
-            <div class="flex justify-between items-center border-b pb-3 mb-4">
-                <h2 class="text-lg font-bold text-slate-800"><i class="fas fa-user-shield text-transaltisa-secondary mr-2"></i>Gestión de Proveedores</h2>
-                <button onclick="cerrarAdmin()" class="text-slate-400 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
+    <div id="adminModal" class="hidden fixed inset-0 bg-slate-900/60 z-50 flex justify-center items-center backdrop-blur-sm">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-7 border-t-4 border-transaltisa-primary relative">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2"><i class="fas fa-shield-alt text-transaltisa-secondary"></i> Gestión de Proveedores</h2>
+                <button onclick="cerrarAdmin()" class="text-slate-400 hover:text-red-500 bg-slate-100 h-8 w-8 rounded-full transition-colors"><i class="fas fa-times"></i></button>
             </div>
-            
-            <form id="adminForm" class="space-y-4">
+            <form id="adminForm" class="space-y-5">
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Nombre del Proveedor</label>
-                    <input type="text" id="nuevoProveedor" placeholder="Ej. WISETRACK" class="w-full rounded-lg border-slate-300 border p-2.5 focus:ring-2 focus:ring-transaltisa-secondary uppercase outline-none" required>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Nombre (ID)</label>
+                    <input type="text" id="nuevoProveedor" placeholder="Ej. EMPRESA X" class="w-full rounded-xl border-slate-200 bg-slate-50 border p-3 text-sm focus:bg-white focus:ring-2 focus:ring-transaltisa-secondary uppercase outline-none" required>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-slate-700 mb-1">Correos (separados por comas)</label>
-                    <textarea id="nuevoCorreos" rows="3" placeholder="ejemplo1@empresa.com, ejemplo2@empresa.com" class="w-full rounded-lg border-slate-300 border p-2.5 focus:ring-2 focus:ring-transaltisa-secondary lowercase outline-none" required></textarea>
+                    <label class="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Correos Asociados</label>
+                    <textarea id="nuevoCorreos" rows="3" placeholder="correo1@.com, correo2@.com" class="w-full rounded-xl border-slate-200 bg-slate-50 border p-3 text-sm focus:bg-white focus:ring-2 focus:ring-transaltisa-secondary lowercase outline-none resize-none" required></textarea>
                 </div>
-                <button type="submit" id="btnGuardarProv" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 px-4 rounded-lg transition-colors flex justify-center items-center gap-2">
-                    <i class="fas fa-save"></i> Guardar en Base de Datos
+                <button type="submit" id="btnGuardarProv" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3.5 rounded-xl transition-all shadow-md flex justify-center items-center gap-2">
+                    <i class="fas fa-cloud-upload-alt"></i> Sincronizar Datos
                 </button>
                 <p id="adminMsg" class="text-sm text-center font-bold mt-2 hidden"></p>
             </form>
@@ -176,180 +207,126 @@
     </div>
 
     <script>
-        const form = document.getElementById('ticketForm');
-        const statusMsg = document.getElementById('statusMsg');
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx15wi9JZETi278WnqdS2L_5xq2bdwr7nV53gJRi1UknR8oec3sUhQ1Nk4GnflCmRIG/exec';
-        let chartInstance = null; // Variable global para manejar el gráfico
+        let chartInstance = null;
 
+        // Buscador
         document.getElementById('buscador').addEventListener('input', function(e) {
             const filtro = e.target.value.toLowerCase();
             const filas = document.querySelectorAll('#tablaCuerpo tr');
             filas.forEach(fila => {
-                const texto = fila.textContent.toLowerCase();
-                fila.style.display = texto.includes(filtro) ? '' : 'none';
+                fila.style.display = fila.textContent.toLowerCase().includes(filtro) ? '' : 'none';
             });
         });
 
+        // Modales
         function abrirModalPass() {
             document.getElementById('adminPass').value = '';
             document.getElementById('passModal').classList.remove('hidden');
             setTimeout(() => document.getElementById('adminPass').focus(), 100);
         }
-
         function verificarClave() {
             if (document.getElementById('adminPass').value === "4TR4$") {
                 document.getElementById('passModal').classList.add('hidden');
                 document.getElementById('adminModal').classList.remove('hidden');
-            } else {
-                alert("Contraseña incorrecta.");
-            }
+            } else { alert("Acceso denegado."); }
         }
-
         function cerrarAdmin() {
             document.getElementById('adminModal').classList.add('hidden');
             document.getElementById('adminForm').reset();
             document.getElementById('adminMsg').classList.add('hidden');
         }
 
+        // Enviar Admin
         document.getElementById('adminForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnGuardarProv');
             const msg = document.getElementById('adminMsg');
-            
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-            btn.disabled = true;
-
-            const payload = {
-                action: 'guardarProveedor',
-                proveedor: document.getElementById('nuevoProveedor').value.toUpperCase().trim(),
-                correos: document.getElementById('nuevoCorreos').value.toLowerCase().trim()
-            };
-
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...'; btn.disabled = true;
             try {
-                await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                msg.textContent = "¡Proveedor guardado exitosamente!";
-                msg.className = "text-sm text-center font-bold mt-3 text-green-600 block";
+                await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ action: 'guardarProveedor', proveedor: document.getElementById('nuevoProveedor').value.toUpperCase().trim(), correos: document.getElementById('nuevoCorreos').value.toLowerCase().trim() }) });
+                msg.textContent = "Guardado con éxito"; msg.className = "text-sm text-center font-bold mt-3 text-green-600 block";
                 document.getElementById('adminForm').reset();
                 setTimeout(() => { cerrarAdmin(); cargarDatosGenerales(); }, 1500);
-            } catch (error) {
-                msg.textContent = "Error al guardar el proveedor.";
-                msg.className = "text-sm text-center font-bold mt-3 text-red-600 block";
-            } finally {
-                btn.innerHTML = '<i class="fas fa-save"></i> Guardar en Base de Datos';
-                btn.disabled = false;
-            }
+            } catch (error) { msg.textContent = "Error al guardar"; msg.className = "text-sm text-center font-bold mt-3 text-red-600 block"; } 
+            finally { btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar Datos'; btn.disabled = false; }
         });
 
-        form.addEventListener('submit', async (e) => {
+        // Enviar Ticket
+        document.getElementById('ticketForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const btn = form.querySelector('button');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
-            btn.disabled = true;
-
-            const payload = {
-                action: 'nuevoTicket',
-                proveedor: document.getElementById('proveedor').value,
-                proyecto: document.getElementById('proyecto').value,
-                unidad: document.getElementById('unidad').value.toUpperCase(),
-                prioridad: document.getElementById('prioridad').value,
-                incidencia: document.getElementById('incidencia').value
-            };
-
+            const btn = document.getElementById('ticketForm').querySelector('button');
+            const msg = document.getElementById('statusMsg');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...'; btn.disabled = true;
             try {
-                await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-                statusMsg.textContent = "¡Enviado con éxito!";
-                statusMsg.className = "text-sm text-center font-bold mt-3 text-green-600 block";
-                form.reset();
+                await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ action: 'nuevoTicket', proveedor: document.getElementById('proveedor').value, proyecto: document.getElementById('proyecto').value, unidad: document.getElementById('unidad').value.toUpperCase(), prioridad: document.getElementById('prioridad').value, incidencia: document.getElementById('incidencia').value }) });
+                msg.textContent = "¡Ticket Desplegado!"; msg.className = "text-sm text-center font-bold mt-3 text-green-500 block";
+                document.getElementById('ticketForm').reset();
                 setTimeout(cargarDatosGenerales, 1500);
-            } catch (error) {
-                statusMsg.textContent = "Error de conexión.";
-                statusMsg.className = "text-sm text-center font-bold mt-3 text-red-600 block";
-            } finally {
-                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar y Notificar';
-                btn.disabled = false;
-                setTimeout(() => statusMsg.classList.add('hidden'), 5000);
-            }
+            } catch (error) { msg.textContent = "Error de red"; msg.className = "text-sm text-center font-bold mt-3 text-red-500 block"; } 
+            finally { btn.innerHTML = '<i class="fas fa-paper-plane"></i> Desplegar Ticket'; btn.disabled = false; setTimeout(() => msg.classList.add('hidden'), 5000); }
         });
 
+        // Cargar y Renderizar
         async function cargarDatosGenerales() {
             const tbody = document.getElementById('tablaCuerpo');
             const selectProv = document.getElementById('proveedor');
-            
-            tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-slate-500"><i class="fas fa-spinner fa-spin mr-2"></i> Cargando información...</td></tr>';
-            
+            tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-slate-400 font-medium"><i class="fas fa-spinner fa-spin mr-2"></i> Sincronizando...</td></tr>';
             try {
                 const response = await fetch(APPS_SCRIPT_URL);
                 const data = await response.json();
                 
-                // 1. Cargar Proveedores
                 if(data.proveedores) {
                     selectProv.innerHTML = '<option value="">Seleccionar...</option>';
-                    data.proveedores.forEach(prov => {
-                        selectProv.insertAdjacentHTML('beforeend', `<option value="${prov.nombre}">${prov.nombre}</option>`);
-                    });
+                    data.proveedores.forEach(prov => selectProv.insertAdjacentHTML('beforeend', `<option value="${prov.nombre}">${prov.nombre}</option>`));
                 }
 
-                // 2. Variables para Gráficos y KPIs
                 tbody.innerHTML = '';
                 let abiertos = 0, proximos = 0, vencidos = 0;
                 const ahora = new Date();
-                
                 const statsGrafico = {};
-                if(data.proveedores) {
-                    data.proveedores.forEach(p => {
-                        statsGrafico[p.nombre] = { 'Pendiente': 0, 'En atención': 0, 'En Verificación': 0, 'Cerrada': 0 };
-                    });
-                }
                 
-                // 3. Procesar Tickets (Tabla y KPIs)
+                if(data.proveedores) { data.proveedores.forEach(p => statsGrafico[p.nombre] = { 'Pendiente': 0, 'En atención': 0, 'En Verificación': 0, 'Cerrada': 0 }); }
+                
                 (data.tickets || data).forEach(t => { 
-                    // Contar para el Gráfico (si el proveedor existe en la lista)
                     if(!statsGrafico[t.proveedor]) statsGrafico[t.proveedor] = { 'Pendiente': 0, 'En atención': 0, 'En Verificación': 0, 'Cerrada': 0 };
-                    if(statsGrafico[t.proveedor][t.estado] !== undefined) {
-                        statsGrafico[t.proveedor][t.estado]++;
-                    }
+                    if(statsGrafico[t.proveedor][t.estado] !== undefined) statsGrafico[t.proveedor][t.estado]++;
 
-                    // Calcular variables de Tabla
-                    let colorEstado = 'bg-slate-100 text-slate-700'; 
-                    let horasSLA = 0;
-                    let htmlSLA = '';
-                    let botonAccion = '';
-                    let rowClass = "hover:bg-slate-50 transition-colors border-b border-slate-100";
-                    let rowIcon = "";
+                    let colorEstado = 'bg-slate-100 text-slate-600', horasSLA = 0, htmlSLA = '', botonAccion = '-';
+                    let rowClass = "hover:bg-slate-50 transition-colors border-b border-slate-50", rowIcon = "";
 
                     if (t.estado !== 'Cerrada') {
-                        const fechaInicio = new Date(t.fecha);
-                        horasSLA = Math.floor((ahora - fechaInicio) / (1000 * 60 * 60));
+                        horasSLA = Math.floor((ahora - new Date(t.fecha)) / (1000 * 60 * 60));
                         abiertos++;
                         
-                        if (horasSLA >= 48) { vencidos++; htmlSLA = `<span class="text-red-600 font-bold"><i class="fas fa-exclamation-triangle"></i> ${horasSLA} hrs</span>`; }
-                        else if (horasSLA >= 24) { proximos++; htmlSLA = `<span class="text-amber-500 font-bold"><i class="fas fa-clock"></i> ${horasSLA} hrs</span>`; }
+                        if (horasSLA >= 48) { vencidos++; htmlSLA = `<span class="text-red-500 font-bold">${horasSLA} hrs</span>`; }
+                        else if (horasSLA >= 24) { proximos++; htmlSLA = `<span class="text-amber-500 font-bold">${horasSLA} hrs</span>`; }
                         else { htmlSLA = `<span class="text-slate-600 font-medium">${horasSLA} hrs</span>`; }
                         
                         if (t.prioridad === 'Crítica') {
-                            rowClass = "bg-red-50 hover:bg-red-100 transition-colors border-b border-red-200";
-                            rowIcon = `<i class="fas fa-fire text-red-500 mr-2" title="Ticket Crítico"></i>`;
+                            rowClass = "bg-red-50/50 hover:bg-red-50 transition-colors border-b border-red-100";
+                            rowIcon = `<i class="fas fa-circle text-[8px] text-red-500 mr-2 animate-pulse"></i>`;
                         }
-                    } else {
-                        htmlSLA = `<span class="text-green-500 font-bold"><i class="fas fa-check-double"></i> Finalizado</span>`;
-                    }
+                    } else { htmlSLA = `<span class="text-emerald-500 font-bold"><i class="fas fa-check mr-1"></i> Ok</span>`; }
 
-                    if(t.estado === 'Pendiente') colorEstado = 'bg-amber-100 text-amber-700';
-                    if(t.estado === 'En atención') colorEstado = 'bg-blue-100 text-blue-700';
+                    if(t.estado === 'Pendiente') colorEstado = 'bg-amber-50 text-amber-600 border border-amber-200';
+                    if(t.estado === 'En atención') colorEstado = 'bg-blue-50 text-blue-600 border border-blue-200';
                     if(t.estado === 'En Verificación') {
-                        colorEstado = 'bg-purple-100 text-purple-700 font-bold animate-pulse ring-2 ring-purple-300';
-                        botonAccion = `<button onclick="cerrarTicket('${t.ticket}')" class="bg-purple-600 hover:bg-purple-800 text-white px-3 py-1 rounded-md text-xs font-bold transition-colors shadow-md"><i class="fas fa-check-circle mr-1"></i> Aprobar</button>`;
+                        colorEstado = 'bg-purple-50 text-purple-600 border border-purple-200 font-bold';
+                        botonAccion = `<button onclick="cerrarTicket('${t.ticket}')" class="bg-purple-100 hover:bg-purple-600 hover:text-white text-purple-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"><i class="fas fa-check-double mr-1"></i> Validar</button>`;
                     }
-                    if(t.estado === 'Cerrada') colorEstado = 'bg-green-100 text-green-700';
+                    if(t.estado === 'Cerrada') colorEstado = 'bg-emerald-50 text-emerald-600 border border-emerald-200';
 
                     tbody.insertAdjacentHTML('beforeend', `
                         <tr class="${rowClass}">
-                            <td class="p-4 font-bold" style="color: #1A52A0;">${rowIcon}${t.ticket}</td>
-                            <td class="p-4 font-semibold text-slate-700">${t.proveedor}</td>
-                            <td class="p-4 font-bold uppercase">${t.unidad}</td>
-                            <td class="p-4"><span class="${colorEstado} py-1 px-3 rounded-full text-xs">${t.estado}</span></td>
-                            <td class="p-4">${htmlSLA}</td>
-                            <td class="p-4 text-center">${botonAccion}</td>
+                            <td class="px-6 py-4 font-bold text-slate-800">${rowIcon}${t.ticket}</td>
+                            <td class="px-6 py-4 font-medium text-slate-500">${t.proveedor}</td>
+                            <td class="px-6 py-4 font-bold text-slate-700 uppercase">${t.unidad}</td>
+                            <td class="px-6 py-4"><span class="${colorEstado} py-1 px-3 rounded-full text-xs">${t.estado}</span></td>
+                            <td class="px-6 py-4">${htmlSLA}</td>
+                            <td class="px-6 py-4 text-center">${botonAccion}</td>
                         </tr>
                     `);
                 });
@@ -358,61 +335,49 @@
                 document.getElementById('kpi-proximos').textContent = proximos;
                 document.getElementById('kpi-vencidos').textContent = vencidos;
                 
-                // 4. Dibujar Gráfico Dashboard
                 actualizarGrafico(statsGrafico);
-                
-            } catch (error) {
-                tbody.innerHTML = '<tr><td colspan="6" class="p-4 text-center text-red-500"><i class="fas fa-times-circle mr-1"></i> Error de conexión al cargar datos</td></tr>';
-            }
+            } catch (error) { tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-red-400"><i class="fas fa-wifi mr-2"></i> Sin conexión a la base</td></tr>'; }
         }
 
+        // Gráfico Estilizado Moderno (Barras Horizontales Delgadas)
         function actualizarGrafico(stats) {
             const ctx = document.getElementById('proveedorChart').getContext('2d');
             const labels = Object.keys(stats);
-            
-            const dataPendiente = labels.map(l => stats[l]['Pendiente']);
-            const dataAtencion = labels.map(l => stats[l]['En atención']);
-            const dataVerificacion = labels.map(l => stats[l]['En Verificación']);
-            const dataCerrada = labels.map(l => stats[l]['Cerrada']);
-
             if (chartInstance) { chartInstance.destroy(); }
 
+            // Configuración estética High-End para Chart.js
             chartInstance = new Chart(ctx, {
-                type: 'bar',
+                type: 'bar', // Barra Horizontal
                 data: {
                     labels: labels,
                     datasets: [
-                        { label: 'Pendientes', data: dataPendiente, backgroundColor: '#f59e0b' },
-                        { label: 'En Atención', data: dataAtencion, backgroundColor: '#3b82f6' },
-                        { label: 'En Verificación', data: dataVerificacion, backgroundColor: '#a855f7' },
-                        { label: 'Cerrados', data: dataCerrada, backgroundColor: '#22c55e' }
+                        { label: 'Pend.', data: labels.map(l => stats[l]['Pendiente']), backgroundColor: '#f59e0b', borderRadius: 20, barThickness: 12 },
+                        { label: 'Aten.', data: labels.map(l => stats[l]['En atención']), backgroundColor: '#3b82f6', borderRadius: 20, barThickness: 12 },
+                        { label: 'Verif.', data: labels.map(l => stats[l]['En Verificación']), backgroundColor: '#a855f7', borderRadius: 20, barThickness: 12 },
+                        { label: 'Ok', data: labels.map(l => stats[l]['Cerrada']), backgroundColor: '#10b981', borderRadius: 20, barThickness: 12 }
                     ]
                 },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        x: { stacked: true },
-                        y: { stacked: true, beginAtZero: true, ticks: { stepSize: 1 } }
-                    },
+                    indexAxis: 'y', // Lo convierte a horizontal
+                    responsive: true, maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                        legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 6, font: { family: "'Inter', sans-serif", size: 11, weight: '500' }, color: '#64748b' } },
+                        tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 8, titleFont: { family: "'Inter', sans-serif" }, bodyFont: { family: "'Inter', sans-serif" } }
+                    },
+                    scales: {
+                        x: { stacked: true, display: false }, // Oculta el eje X (números inferiores) para más limpieza
+                        y: { stacked: true, grid: { display: false }, border: { display: false }, ticks: { font: { family: "'Inter', sans-serif", weight: '600' }, color: '#475569' } }
                     }
                 }
             });
         }
 
         async function cerrarTicket(ticketId) {
-            if(!confirm(`¿Desea aprobar y cerrar definitivamente el ticket ${ticketId}?`)) return;
+            if(!confirm(`¿Validar y cerrar permanentemente el ticket ${ticketId}?`)) return;
             try {
-                await fetch(APPS_SCRIPT_URL, {
-                    method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'cerrar', ticket: ticketId })
-                });
+                await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'cerrar', ticket: ticketId }) });
                 setTimeout(cargarDatosGenerales, 1000); 
-            } catch (error) {
-                alert("Hubo un error al cerrar el ticket.");
-            }
+            } catch (error) { alert("Error de red al cerrar."); }
         }
 
         document.addEventListener('DOMContentLoaded', cargarDatosGenerales);
