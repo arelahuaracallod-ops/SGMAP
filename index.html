@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SGMAP - Centro de Control</title>
+    
+    <!-- Favicon (Icono de pestaña): Cambia el "href" por el enlace de tu logo .png o .ico cuando lo subas a GitHub -->
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjMUI1MkEwIiBkPSJNMjU2IDBDMTE0LjYgMCAwIDExNC42IDAgMjU2czExNC42IDI1NiAyNTYgMjU2IDI1Ni0xMTQuNiAyNTYtMjU2UzM5Ny40IDAgMjU2IDB6bTAgNDY0Yy0xMTQuNyAwLTIwOC05My4zLTIwOC0yMDhTMTQxLjMgNDggMjU2IDQ4czIwOCA5My4zIDIwOCAyMDhTMzcwLjcgNDY0IDI1NiA0NjR6Ii8+PC9zdmc+" type="image/svg+xml">
+    
     <!-- Tipografía Moderna -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -21,7 +25,6 @@
         }
     </script>
     <style>
-        /* Scrollbar estilizado */
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
@@ -38,15 +41,20 @@
                 <div class="p-2 bg-white/10 rounded-lg"><i class="fas fa-satellite-dish text-xl text-blue-200"></i></div>
                 <h1 onclick="abrirModalPass()" class="text-xl font-bold tracking-wide cursor-pointer hover:text-blue-200 transition">SGMAP <span class="text-sm font-normal text-blue-200 opacity-80">| Control Center</span></h1>
             </div>
-            <div class="text-sm font-medium flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
-                <i class="fas fa-user-circle text-lg"></i> Operador Activo
+            <div class="flex items-center gap-3">
+                <button onclick="abrirDashboard()" class="bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 shadow-sm">
+                    <i class="fas fa-chart-line text-blue-300"></i> Dashboard
+                </button>
+                <div class="text-sm font-medium flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full">
+                    <i class="fas fa-user-circle text-lg"></i> Operador Activo
+                </div>
             </div>
         </div>
     </nav>
 
     <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <!-- Formulario Moderno -->
+        <!-- Panel Izquierdo: Formulario -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-7">
                 <h2 class="text-lg font-bold mb-6 text-slate-800 flex items-center gap-2">
@@ -123,17 +131,6 @@
                 </div>
             </div>
 
-            <!-- Gráfico Modernizado (Sorpresa) -->
-            <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h2 class="text-base font-bold text-slate-800"><i class="fas fa-chart-pie text-transaltisa-secondary mr-2"></i>Eficiencia de Proveedores</h2>
-                    <span class="text-xs font-medium bg-slate-100 text-slate-500 px-3 py-1 rounded-full">Tiempo Real</span>
-                </div>
-                <div class="w-full h-44">
-                    <canvas id="proveedorChart"></canvas>
-                </div>
-            </div>
-
             <!-- Tabla Elegante -->
             <div class="bg-white rounded-2xl shadow-modern border border-slate-100 overflow-hidden">
                 <div class="p-5 border-b border-slate-100 flex flex-wrap justify-between items-center gap-4 bg-white/50">
@@ -147,7 +144,7 @@
                     </div>
                 </div>
                 
-                <div class="overflow-x-auto max-h-[400px]">
+                <div class="overflow-x-auto max-h-[500px]">
                     <table class="w-full text-left border-collapse">
                         <thead class="sticky top-0 bg-white/90 backdrop-blur-sm shadow-sm z-10">
                             <tr class="text-slate-400 text-xs font-semibold uppercase tracking-wider">
@@ -168,12 +165,27 @@
         </div>
     </div>
 
+    <!-- MODAL DASHBOARD (Gráficos) -->
+    <div id="dashboardModal" class="hidden fixed inset-0 bg-slate-900/70 z-[70] flex justify-center items-center backdrop-blur-sm transition-opacity p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl p-7 border-t-4 border-transaltisa-secondary relative flex flex-col h-[70vh] max-h-[600px]">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-slate-800"><i class="fas fa-chart-pie text-transaltisa-secondary mr-2"></i> Eficiencia de Proveedores</h2>
+                <div class="flex items-center gap-4">
+                    <span class="text-xs font-medium bg-slate-100 text-slate-500 px-3 py-1.5 rounded-full">Actualizado en Tiempo Real</span>
+                    <button onclick="cerrarDashboard()" class="text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-slate-100 h-9 w-9 rounded-full transition-colors flex justify-center items-center"><i class="fas fa-times text-lg"></i></button>
+                </div>
+            </div>
+            <div class="flex-1 w-full relative">
+                <canvas id="proveedorChart"></canvas>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL DE CONTRASEÑA -->
     <div id="passModal" class="hidden fixed inset-0 bg-slate-900/60 z-[60] flex justify-center items-center backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-7 transform scale-100 transition-transform">
             <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-4 mx-auto text-slate-600"><i class="fas fa-lock text-xl"></i></div>
             <h2 class="text-center text-lg font-bold text-slate-800 mb-6">Acceso Restringido</h2>
-            <!-- AQUÍ ESTÁ EL TIPO PASSWORD QUE OCULTA LOS CARACTERES -->
             <input type="password" id="adminPass" placeholder="••••••••" class="w-full rounded-xl border-slate-200 bg-slate-50 border p-3 text-center tracking-widest focus:bg-white focus:ring-2 focus:ring-transaltisa-secondary outline-none mb-6" onkeypress="if(event.key === 'Enter') verificarClave()">
             <div class="flex gap-3">
                 <button onclick="document.getElementById('passModal').classList.add('hidden')" class="flex-1 py-3 text-slate-500 bg-slate-100 rounded-xl hover:bg-slate-200 font-semibold transition-colors">Cancelar</button>
@@ -219,7 +231,7 @@
             });
         });
 
-        // Modales
+        // Modales Secundarios
         function abrirModalPass() {
             document.getElementById('adminPass').value = '';
             document.getElementById('passModal').classList.remove('hidden');
@@ -235,6 +247,14 @@
             document.getElementById('adminModal').classList.add('hidden');
             document.getElementById('adminForm').reset();
             document.getElementById('adminMsg').classList.add('hidden');
+        }
+
+        // Modal de Dashboard
+        function abrirDashboard() {
+            document.getElementById('dashboardModal').classList.remove('hidden');
+        }
+        function cerrarDashboard() {
+            document.getElementById('dashboardModal').classList.add('hidden');
         }
 
         // Enviar Admin
@@ -345,7 +365,6 @@
             const labels = Object.keys(stats);
             if (chartInstance) { chartInstance.destroy(); }
 
-            // Configuración estética High-End para Chart.js
             chartInstance = new Chart(ctx, {
                 type: 'bar', // Barra Horizontal
                 data: {
@@ -358,14 +377,14 @@
                     ]
                 },
                 options: {
-                    indexAxis: 'y', // Lo convierte a horizontal
+                    indexAxis: 'y', 
                     responsive: true, maintainAspectRatio: false,
                     plugins: {
                         legend: { position: 'top', align: 'end', labels: { usePointStyle: true, boxWidth: 6, font: { family: "'Inter', sans-serif", size: 11, weight: '500' }, color: '#64748b' } },
                         tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 8, titleFont: { family: "'Inter', sans-serif" }, bodyFont: { family: "'Inter', sans-serif" } }
                     },
                     scales: {
-                        x: { stacked: true, display: false }, // Oculta el eje X (números inferiores) para más limpieza
+                        x: { stacked: true, display: false }, 
                         y: { stacked: true, grid: { display: false }, border: { display: false }, ticks: { font: { family: "'Inter', sans-serif", weight: '600' }, color: '#475569' } }
                     }
                 }
