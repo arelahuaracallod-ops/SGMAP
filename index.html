@@ -95,8 +95,15 @@
                             </select>
                         </div>
                     </div>
+                    
+                    <!-- NUEVO CAMPO ASUNTO AGREGADO AQUÍ -->
                     <div>
-                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Detalle</label>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Asunto</label>
+                        <input type="text" id="asunto" placeholder="Ej. Revisión de GPS, Falla de Cámara..." class="w-full rounded-xl border-slate-200 bg-slate-50 border p-3 text-sm focus:bg-white focus:ring-2 focus:ring-transaltisa-secondary/50 outline-none transition-all" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Detalle Extendido</label>
                         <textarea id="incidencia" rows="3" placeholder="Descripción clara del problema..." class="w-full rounded-xl border-slate-200 bg-slate-50 border p-3 text-sm focus:bg-white focus:ring-2 focus:ring-transaltisa-secondary/50 outline-none transition-all resize-none" required></textarea>
                     </div>
                     <button type="submit" class="w-full bg-gradient-to-r from-transaltisa-primary to-transaltisa-secondary hover:shadow-lg hover:-translate-y-0.5 text-white font-semibold py-3.5 px-4 rounded-xl transition-all flex justify-center items-center gap-2">
@@ -366,8 +373,21 @@
             const msg = document.getElementById('statusMsg');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...'; btn.disabled = true;
             try {
-                await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, 
-                body: JSON.stringify({ action: 'nuevoTicket', proveedor: document.getElementById('proveedor').value, proyecto: document.getElementById('proyecto').value, unidad: document.getElementById('unidad').value.toUpperCase(), prioridad: document.getElementById('prioridad').value, incidencia: document.getElementById('incidencia').value }) });
+                // AQUÍ SE AGREGA EL CAMPO "ASUNTO" A LA LÓGICA DE ENVÍO
+                await fetch(APPS_SCRIPT_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    headers: { 'Content-Type': 'application/json' }, 
+                    body: JSON.stringify({ 
+                        action: 'nuevoTicket', 
+                        proveedor: document.getElementById('proveedor').value, 
+                        proyecto: document.getElementById('proyecto').value, 
+                        unidad: document.getElementById('unidad').value.toUpperCase(), 
+                        prioridad: document.getElementById('prioridad').value, 
+                        asunto: document.getElementById('asunto').value, // <--- CAMPO AÑADIDO
+                        incidencia: document.getElementById('incidencia').value 
+                    }) 
+                });
                 msg.textContent = "¡Ticket Desplegado!"; msg.className = "text-sm text-center font-bold mt-3 text-green-500 block";
                 document.getElementById('ticketForm').reset();
                 setTimeout(cargarDatosGenerales, 1500);
@@ -410,6 +430,7 @@
             
             filtrados.forEach(t => {
                 const inc = (t.incidencia || "").toLowerCase();
+                // Ahora también puede buscar el tipo de falla en el asunto si se desea, pero lo mantendremos en incidencia para no romper la lógica actual.
                 if(inc.includes('gps') || inc.includes('satelital')) fallasConteo['GPS']++;
                 else if(inc.includes('camara') || inc.includes('video')) fallasConteo['Cámaras']++;
                 else if(inc.includes('energia') || inc.includes('bateria') || inc.includes('corriente')) fallasConteo['Energía']++;
@@ -509,9 +530,9 @@
             ];
 
             const filtrados = obtenerDatosFiltrados();
-            const tableHeaders = ["Ticket ID", "Fecha y Hora", "Proveedor", "Proyecto", "Unidad", "Prioridad", "Estado", "Horas Consumidas", "Detalle de Falla"];
+            const tableHeaders = ["Ticket ID", "Fecha y Hora", "Proveedor", "Proyecto", "Unidad", "Prioridad", "Estado", "Horas Consumidas", "Asunto", "Detalle de Falla"];
             const tableRows = filtrados.map(t => [
-                t.ticket, t.fecha, t.proveedor, t.proyecto, t.unidad, t.prioridad, t.estado, parseHoras(t), t.incidencia
+                t.ticket, t.fecha, t.proveedor, t.proyecto, t.unidad, t.prioridad, t.estado, parseHoras(t), t.asunto || "N/A", t.incidencia
             ]);
 
             const finalData = kpiData.concat([tableHeaders]).concat(tableRows);
