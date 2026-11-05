@@ -12,7 +12,7 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- LIBRERÍAS PRO PARA EXPORTACIÓN (NUEVO) -->
+    <!-- LIBRERÍAS PRO PARA EXPORTACIÓN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -168,10 +168,9 @@
 
     <!-- MODAL DASHBOARD CORPORATIVO (SLA) -->
     <div id="dashboardModal" class="hidden fixed inset-0 bg-slate-900/70 z-[70] flex justify-center items-center backdrop-blur-sm p-4">
-        <!-- Contenedor con ID para impresión PDF -->
+        
         <div id="dashboardContent" class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl p-7 border-t-4 border-transaltisa-secondary relative flex flex-col h-[90vh] overflow-y-auto">
             
-            <!-- Cabecera con Filtros Corporativos -->
             <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-5 gap-3 border-b border-slate-100 pb-4">
                 <div class="flex items-center gap-3">
                     <h2 class="text-xl font-bold text-slate-800"><i class="fas fa-chart-bar text-transaltisa-secondary mr-2"></i> Dashboard Ejecutivo SLA</h2>
@@ -247,7 +246,7 @@
             </div>
 
             <!-- Contenedor dual de gráficos -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 flex-1 min-h-[220px]">
+            <div id="contenedorGraficos" class="grid grid-cols-1 lg:grid-cols-3 gap-5 flex-1 min-h-[220px]">
                 <div class="lg:col-span-2 relative bg-slate-50/50 p-3 rounded-xl border border-slate-100 flex flex-col">
                     <div id="leyendaEstados" class="flex justify-center gap-4 text-[11px] font-bold text-slate-500 mb-1">
                         <span class="flex items-center gap-1"><i class="fas fa-circle text-amber-500 text-[8px]"></i> Pendiente</span>
@@ -270,7 +269,6 @@
     </div>
 
     <!-- MODAL DE CONTRASEÑA -->
-    <!-- ... (El resto del HTML sigue igual que en versiones anteriores) ... -->
     <div id="passModal" class="hidden fixed inset-0 bg-slate-900/60 z-[60] flex justify-center items-center backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-7 transform scale-100 transition-transform">
             <div class="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center mb-4 mx-auto text-slate-600"><i class="fas fa-lock text-xl"></i></div>
@@ -347,8 +345,35 @@
             document.getElementById('dashboardModal').classList.add('hidden');
         }
 
-        document.getElementById('adminForm').addEventListener('submit', async (e) => { /* Lógica intacta */ e.preventDefault(); });
-        document.getElementById('ticketForm').addEventListener('submit', async (e) => { /* Lógica intacta */ e.preventDefault(); });
+        document.getElementById('adminForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnGuardarProv');
+            const msg = document.getElementById('adminMsg');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...'; btn.disabled = true;
+            try {
+                await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ action: 'guardarProveedor', proveedor: document.getElementById('nuevoProveedor').value.toUpperCase().trim(), correos: document.getElementById('nuevoCorreos').value.toLowerCase().trim() }) });
+                msg.textContent = "Guardado con éxito"; msg.className = "text-sm text-center font-bold mt-3 text-green-600 block";
+                document.getElementById('adminForm').reset();
+                setTimeout(() => { cerrarAdmin(); cargarDatosGenerales(); }, 1500);
+            } catch (error) { msg.textContent = "Error al guardar"; msg.className = "text-sm text-center font-bold mt-3 text-red-600 block"; } 
+            finally { btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar Datos'; btn.disabled = false; }
+        });
+
+        document.getElementById('ticketForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('ticketForm').querySelector('button');
+            const msg = document.getElementById('statusMsg');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...'; btn.disabled = true;
+            try {
+                await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, 
+                body: JSON.stringify({ action: 'nuevoTicket', proveedor: document.getElementById('proveedor').value, proyecto: document.getElementById('proyecto').value, unidad: document.getElementById('unidad').value.toUpperCase(), prioridad: document.getElementById('prioridad').value, incidencia: document.getElementById('incidencia').value }) });
+                msg.textContent = "¡Ticket Desplegado!"; msg.className = "text-sm text-center font-bold mt-3 text-green-500 block";
+                document.getElementById('ticketForm').reset();
+                setTimeout(cargarDatosGenerales, 1500);
+            } catch (error) { msg.textContent = "Error de red"; msg.className = "text-sm text-center font-bold mt-3 text-red-500 block"; } 
+            finally { btn.innerHTML = '<i class="fas fa-paper-plane"></i> Desplegar Ticket'; btn.disabled = false; setTimeout(() => msg.classList.add('hidden'), 5000); }
+        });
 
         function parseHoras(t) {
             if ((t.estado === 'Cerrada' || t.estado === 'En Verificación') && t.tiempo) {
@@ -409,6 +434,7 @@
 
             const ctx = document.getElementById('proveedorChart').getContext('2d');
             const ctxFalla = document.getElementById('fallaChart').getContext('2d');
+            
             if (chartInstance) chartInstance.destroy();
             if (fallaChartInstance) fallaChartInstance.destroy();
 
@@ -434,7 +460,7 @@
                         labels: filtrados.map(t => t.ticket),
                         datasets: [{ label: 'Horas (SLA)', data: filtrados.map(t => parseHoras(t)), backgroundColor: filtrados.map(t => t.estado === 'Pendiente' ? '#f59e0b' : t.estado === 'En atención' ? '#3b82f6' : t.estado === 'En Verificación' ? '#a855f7' : '#10b981'), borderRadius: 6, maxBarThickness: 35 }]
                     },
-                    options: { responsive: true, maintainAspectRatio: false, animation: { duration: 0 }, plugins: { legend: { display: false } } }
+                    options: { responsive: true, maintainAspectRatio: false, animation: { duration: 0 }, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 10 } } }, y: { beginAtZero: true } } }
                 });
             }
 
@@ -449,7 +475,7 @@
         }
 
         // ==========================================
-        // NUEVAS FUNCIONES DE EXPORTACIÓN (EXCEL Y PDF)
+        // FUNCIONES DE EXPORTACIÓN
         // ==========================================
 
         function obtenerDatosFiltrados() {
@@ -461,13 +487,11 @@
             return filtrarPorTemporalidad(filtrados);
         }
 
-        // 1. Exportar a EXCEL (.xlsx) usando SheetJS
         function exportarExcel() {
             const prov = document.getElementById('filtroDashboard').value;
             const proy = document.getElementById('filtroProyecto').value;
             const temp = document.getElementById('filtroTemporalidad').options[document.getElementById('filtroTemporalidad').selectedIndex].text;
             
-            // Construcción del diseño de celdas
             const kpiData = [
                 ["SGMAP - REPORTE EJECUTIVO DE CONTROL SLA"],
                 ["Fecha de Emisión:", new Date().toLocaleString()],
@@ -492,55 +516,80 @@
 
             const finalData = kpiData.concat([tableHeaders]).concat(tableRows);
 
-            // Generar libro de Excel
             const ws = XLSX.utils.aoa_to_sheet(finalData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "Reporte Ejecutivo");
             XLSX.writeFile(wb, `SGMAP_Reporte_${prov}_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
-        // 2. Exportar a PDF Corporativo usando Html2Pdf
         function exportarPDF() {
-            // Ocultar botones e inputs temporalmente para limpiar la captura
             const controles = document.getElementById('botonesExportacion');
             const btnCerrar = document.getElementById('btnCerrarDash');
+            const elemento = document.getElementById('dashboardContent');
+            const chartContainer = document.getElementById('contenedorGraficos');
+
+            // Ocultar botones para no imprimirlos
             controles.style.display = 'none';
             btnCerrar.style.display = 'none';
 
-            // Elemento a convertir en PDF
-            const elemento = document.getElementById('dashboardContent');
+            // 1. Eliminar clases de visualización web (scroll y altura dinámica)
+            elemento.classList.remove('h-[90vh]', 'overflow-y-auto', 'p-7', 'shadow-2xl');
+            
+            // 2. Forzar medidas exactas de hoja A4 apaisada a 96 DPI
+            elemento.style.width = '1122px';
+            elemento.style.height = '760px';
+            elemento.style.padding = '1.25rem'; // Reducir margen interior
+            
+            if (chartContainer) chartContainer.classList.remove('min-h-[220px]');
 
-            // Añadir un encabezado corporativo dinámico solo para el PDF
+            // 3. Añadir el encabezado corporativo estructurado
             const divEncabezado = document.createElement('div');
             divEncabezado.id = "pdfHeader";
             divEncabezado.innerHTML = `
-                <div style="text-align:center; padding-bottom: 20px; border-bottom: 2px solid #e2e8f0; margin-bottom: 20px;">
-                    <h1 style="color:#0B336A; font-family: sans-serif; font-size: 26px; font-weight: 800; margin:0;">SGMAP | REPORTE EJECUTIVO DE SLA</h1>
-                    <p style="color:#64748b; font-size: 14px; margin-top:5px;">Documento generado el: ${new Date().toLocaleString()}</p>
+                <div style="text-align:center; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
+                    <h1 style="color:#0B336A; font-family: sans-serif; font-size: 24px; font-weight: 800; margin:0;">SGMAP | REPORTE EJECUTIVO DE SLA</h1>
+                    <p style="color:#64748b; font-size: 12px; margin-top:5px;">Documento generado el: ${new Date().toLocaleString()}</p>
                 </div>
             `;
             elemento.prepend(divEncabezado);
 
-            // Configuraciones de alta calidad para Html2Pdf
+            // 4. Obligar a Chart.js a redimensionarse en el nuevo contenedor bloqueado
+            if (chartInstance) chartInstance.resize();
+            if (fallaChartInstance) fallaChartInstance.resize();
+
             const opt = {
-              margin:       [0.5, 0.5, 0.5, 0.5],
-              filename:     `SGMAP_Ejecutivo_${new Date().toISOString().slice(0,10)}.pdf`,
+              margin:       0.15,
+              filename:     `SGMAP_Reporte_SLA_${new Date().toISOString().slice(0,10)}.pdf`,
               image:        { type: 'jpeg', quality: 1 },
-              html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
-              jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' } // Horizontal para que encajen los gráficos
+              html2canvas:  { scale: 2, useCORS: true },
+              jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
             };
 
-            // Generar y descargar
-            html2pdf().set(opt).from(elemento).save().then(() => {
-                // Restaurar la vista web después de descargar
-                controles.style.display = 'flex';
-                btnCerrar.style.display = 'flex';
-                document.getElementById('pdfHeader').remove();
-            });
+            // Pequeña pausa de milisegundos para que Chart.js aplique el resize antes de capturar
+            setTimeout(() => {
+                html2pdf().set(opt).from(elemento).save().then(() => {
+                    
+                    // Restaurar elementos ocultos
+                    controles.style.display = 'flex';
+                    btnCerrar.style.display = 'flex';
+                    document.getElementById('pdfHeader').remove();
+                    
+                    // Restaurar vista web original (con scroll y altura adaptativa)
+                    elemento.style.width = '';
+                    elemento.style.height = '';
+                    elemento.style.padding = '';
+                    elemento.classList.add('h-[90vh]', 'overflow-y-auto', 'p-7', 'shadow-2xl');
+                    
+                    if (chartContainer) chartContainer.classList.add('min-h-[220px]');
+                    
+                    // Volver a ajustar los gráficos a la pantalla actual del usuario
+                    if (chartInstance) chartInstance.resize();
+                    if (fallaChartInstance) fallaChartInstance.resize();
+                });
+            }, 350);
         }
 
         async function cargarDatosGenerales() {
-            // (La carga de datos hacia la tabla principal de HTML queda igual)
             const tbody = document.getElementById('tablaCuerpo');
             const selectProv = document.getElementById('proveedor');
             const filtroDash = document.getElementById('filtroDashboard');
@@ -595,7 +644,14 @@
             } catch (error) { tbody.innerHTML = '<tr><td colspan="6" class="p-6 text-center text-red-400"><i class="fas fa-wifi mr-2"></i> Error de conexión</td></tr>'; }
         }
 
-        async function cerrarTicket(ticketId) { /* Lógica intacta */ }
+        async function cerrarTicket(ticketId) {
+            if(!confirm(`¿Validar y cerrar permanentemente el ticket ${ticketId}?`)) return;
+            try {
+                await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'cerrar', ticket: ticketId }) });
+                setTimeout(cargarDatosGenerales, 1000); 
+            } catch (error) { alert("Error de red al cerrar."); }
+        }
+
         document.addEventListener('DOMContentLoaded', cargarDatosGenerales);
     </script>
 </body>
