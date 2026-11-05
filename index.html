@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGMAP - Transaltisa</title>
+    <title>SGMAP - Centro de Control</title>
     
     <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjMUI1MkEwIiBkPSJNMjU2IDBDMTE0LjYgMCAwIDExNC42IDAgMjU2czExNC42IDI1NiAyNTYgMjU2IDI1Ni0xMTQuNiAyNTYtMjU2UzM5Ny40IDAgMjU2IDB6bTAgNDY0Yy0xMTQuNyAwLTIwOC05My4zLTIwOC0yMDhTMTQxLjMgNDggMjU2IDQ4czIwOCA5My4zIDIwOCAyMDhTMzcwLjcgNDY0IDI1NiA0NjR6Ii8+PC9zdmc+" type="image/svg+xml">
     
@@ -37,14 +37,14 @@
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <div class="p-2 bg-white/10 rounded-lg"><i class="fas fa-satellite-dish text-xl text-blue-200"></i></div>
-                <h1 onclick="abrirModalPass()" class="text-xl font-bold tracking-wide cursor-pointer hover:text-blue-200 transition">SGMAP <span class="text-sm font-normal text-blue-200 opacity-80">| Transaltisa</span></h1>
+                <h1 onclick="abrirModalPass()" class="text-xl font-bold tracking-wide cursor-pointer hover:text-blue-200 transition">SGMAP <span class="text-sm font-normal text-blue-200 opacity-80">| Control Center</span></h1>
             </div>
             <div class="flex items-center gap-3">
                 <button onclick="abrirDashboard()" class="bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 shadow-sm">
                     <i class="fas fa-chart-line text-blue-300"></i> Dashboard SLA
                 </button>
                 <div class="text-sm font-medium flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full hidden sm:flex">
-                    <i class="fas fa-user-circle text-lg"></i> Centro de Control
+                    <i class="fas fa-user-circle text-lg"></i> Operador Activo
                 </div>
             </div>
         </div>
@@ -161,57 +161,101 @@
         </div>
     </div>
 
-    <!-- MODAL DASHBOARD PROFESIONAL (SLA) -->
+    <!-- MODAL DASHBOARD CORPORATIVO (SLA) -->
     <div id="dashboardModal" class="hidden fixed inset-0 bg-slate-900/70 z-[70] flex justify-center items-center backdrop-blur-sm p-4">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-5xl p-7 border-t-4 border-transaltisa-secondary relative flex flex-col h-[85vh]">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl p-7 border-t-4 border-transaltisa-secondary relative flex flex-col h-[90vh]">
             
-            <!-- Cabecera del Dashboard -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-slate-100 pb-4">
-                <h2 class="text-xl font-bold text-slate-800"><i class="fas fa-chart-bar text-transaltisa-secondary mr-2"></i> Rendimiento Analítico (SLA)</h2>
-                <div class="flex items-center gap-3 w-full md:w-auto">
-                    <select id="filtroDashboard" class="w-full md:w-64 rounded-xl border-slate-200 bg-slate-50 border p-2 text-sm focus:ring-2 focus:ring-transaltisa-secondary outline-none font-semibold text-slate-700" onchange="actualizarDashboardUI()">
+            <!-- Cabecera con Filtros Corporativos -->
+            <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-5 gap-3 border-b border-slate-100 pb-4">
+                <div class="flex items-center gap-3">
+                    <h2 class="text-xl font-bold text-slate-800"><i class="fas fa-chart-bar text-transaltisa-secondary mr-2"></i> Dashboard Ejecutivo SLA</h2>
+                </div>
+                
+                <div class="flex flex-wrap items-center gap-2.5 w-full xl:w-auto">
+                    <!-- Filtro Proveedor -->
+                    <select id="filtroDashboard" class="rounded-xl border-slate-200 bg-slate-50 border p-2 text-xs focus:ring-2 focus:ring-transaltisa-secondary outline-none font-semibold text-slate-700" onchange="actualizarDashboardUI()">
                         <option value="TODOS">Todos los Proveedores</option>
                     </select>
-                    <button onclick="cerrarDashboard()" class="text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-slate-100 h-10 w-10 rounded-full transition-colors flex justify-center items-center flex-shrink-0"><i class="fas fa-times text-lg"></i></button>
+
+                    <!-- Filtro Proyecto / Operación -->
+                    <select id="filtroProyecto" class="rounded-xl border-slate-200 bg-slate-50 border p-2 text-xs focus:ring-2 focus:ring-transaltisa-secondary outline-none font-semibold text-slate-700" onchange="actualizarDashboardUI()">
+                        <option value="TODOS">Todos los Proyectos</option>
+                        <option value="Transaltisa">Transaltisa</option>
+                        <option value="Quellaveco">Quellaveco</option>
+                        <option value="Marcobre Concentrado">Marcobre Concentrado</option>
+                        <option value="Antamina">Antamina</option>
+                        <option value="Flota Spot Arequipa">Flota Spot Arequipa</option>
+                    </select>
+
+                    <!-- Filtro Temporalidad -->
+                    <select id="filtroTemporalidad" class="rounded-xl border-slate-200 bg-slate-50 border p-2 text-xs focus:ring-2 focus:ring-transaltisa-secondary outline-none font-semibold text-slate-700" onchange="actualizarDashboardUI()">
+                        <option value="TODO">Todo el Histórico</option>
+                        <option value="HOY">Hoy</option>
+                        <option value="SEMANA">Últimos 7 días</option>
+                        <option value="MES">Este Mes</option>
+                        <option value="ANIO">Este Año</option>
+                    </select>
+
+                    <!-- Botón Exportar Reporte Ejecutivo -->
+                    <button onclick="exportarReporteEjecutivo()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5" title="Exportar Reporte Ejecutivo">
+                        <i class="fas fa-file-excel"></i> Exportar
+                    </button>
+
+                    <button onclick="cerrarDashboard()" class="text-slate-400 hover:text-red-500 bg-slate-50 hover:bg-slate-100 h-9 w-9 rounded-full transition-colors flex justify-center items-center flex-shrink-0 ml-auto xl:ml-0"><i class="fas fa-times text-base"></i></button>
                 </div>
             </div>
 
-            <!-- Mini KPIs de Rendimiento -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-center justify-between">
+            <!-- Mini KPIs de Rendimiento + % SLA -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-5">
+                <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-100 flex items-center justify-between">
                     <div>
-                        <div class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Total Solicitudes</div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Total Solicitudes</div>
                         <div id="dash-total" class="text-2xl font-black text-slate-700">0</div>
                     </div>
-                    <i class="fas fa-folder-open text-3xl text-slate-300"></i>
+                    <i class="fas fa-folder-open text-2xl text-slate-300"></i>
                 </div>
-                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-center justify-between">
+                <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-100 flex items-center justify-between">
                     <div>
-                        <div class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Atenciones Finalizadas</div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Atenciones Finalizadas</div>
                         <div id="dash-atenciones" class="text-2xl font-black text-emerald-600">0</div>
                     </div>
-                    <i class="fas fa-check-circle text-3xl text-emerald-200"></i>
+                    <i class="fas fa-check-circle text-2xl text-emerald-200"></i>
                 </div>
-                <div class="bg-slate-50 rounded-xl p-4 border border-slate-100 flex items-center justify-between">
+                <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-100 flex items-center justify-between">
                     <div>
-                        <div class="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Tiempo Promedio Resp.</div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Tiempo Promedio</div>
                         <div id="dash-tiempo" class="text-2xl font-black text-blue-600">0 hrs</div>
                     </div>
-                    <i class="fas fa-stopwatch text-3xl text-blue-200"></i>
+                    <i class="fas fa-stopwatch text-2xl text-blue-200"></i>
+                </div>
+                <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-100 flex items-center justify-between">
+                    <div>
+                        <div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">% Cumplimiento SLA</div>
+                        <div id="dash-sla" class="text-2xl font-black text-purple-600">100%</div>
+                    </div>
+                    <i class="fas fa-award text-2xl text-purple-200"></i>
                 </div>
             </div>
 
-            <!-- Leyenda de colores dinámica -->
-            <div id="leyendaEstados" class="flex justify-center gap-5 text-xs font-bold text-slate-500 mb-2">
-                <span class="flex items-center gap-1"><i class="fas fa-circle text-amber-500"></i> Pendiente</span>
-                <span class="flex items-center gap-1"><i class="fas fa-circle text-blue-500"></i> En Atención</span>
-                <span class="flex items-center gap-1"><i class="fas fa-circle text-purple-500"></i> En Verificación</span>
-                <span class="flex items-center gap-1"><i class="fas fa-circle text-emerald-500"></i> Cerrada (Ok)</span>
-            </div>
-
-            <!-- Gráfico -->
-            <div class="flex-1 w-full relative min-h-[250px]">
-                <canvas id="proveedorChart"></canvas>
+            <!-- Contenedor dual de gráficos (Barras principales + Torta secundaria) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-5 flex-1 min-h-[220px]">
+                <div class="lg:col-span-2 relative bg-slate-50/50 p-3 rounded-xl border border-slate-100 flex flex-col">
+                    <div id="leyendaEstados" class="flex justify-center gap-4 text-[11px] font-bold text-slate-500 mb-1">
+                        <span class="flex items-center gap-1"><i class="fas fa-circle text-amber-500 text-[8px]"></i> Pendiente</span>
+                        <span class="flex items-center gap-1"><i class="fas fa-circle text-blue-500 text-[8px]"></i> En Atención</span>
+                        <span class="flex items-center gap-1"><i class="fas fa-circle text-purple-500 text-[8px]"></i> En Verificación</span>
+                        <span class="flex items-center gap-1"><i class="fas fa-circle text-emerald-500 text-[8px]"></i> Cerrada</span>
+                    </div>
+                    <div class="flex-1 relative w-full">
+                        <canvas id="proveedorChart"></canvas>
+                    </div>
+                </div>
+                <div class="bg-slate-50/50 p-3 rounded-xl border border-slate-100 flex flex-col items-center justify-center relative">
+                    <h3 class="text-xs font-bold text-slate-600 uppercase mb-1">Incidencias Recurrentes (Tipos de Falla)</h3>
+                    <div class="flex-1 relative w-full flex items-center justify-center">
+                        <canvas id="fallaChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -256,10 +300,10 @@
     <script>
         const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx15wi9JZETi278WnqdS2L_5xq2bdwr7nV53gJRi1UknR8oec3sUhQ1Nk4GnflCmRIG/exec';
         let chartInstance = null;
+        let fallaChartInstance = null;
         let ticketsData = []; 
         let proveedoresData = [];
 
-        // Buscador
         document.getElementById('buscador').addEventListener('input', function(e) {
             const filtro = e.target.value.toLowerCase();
             const filas = document.querySelectorAll('#tablaCuerpo tr');
@@ -268,7 +312,6 @@
             });
         });
 
-        // Modales Secundarios
         function abrirModalPass() {
             document.getElementById('adminPass').value = '';
             document.getElementById('passModal').classList.remove('hidden');
@@ -286,7 +329,6 @@
             document.getElementById('adminMsg').classList.add('hidden');
         }
 
-        // Modal de Dashboard
         function abrirDashboard() {
             document.getElementById('dashboardModal').classList.remove('hidden');
             actualizarDashboardUI();
@@ -295,7 +337,6 @@
             document.getElementById('dashboardModal').classList.add('hidden');
         }
 
-        // Enviar Admin
         document.getElementById('adminForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnGuardarProv');
@@ -311,7 +352,6 @@
             finally { btn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Sincronizar Datos'; btn.disabled = false; }
         });
 
-        // Enviar Ticket
         document.getElementById('ticketForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('ticketForm').querySelector('button');
@@ -327,7 +367,6 @@
             finally { btn.innerHTML = '<i class="fas fa-paper-plane"></i> Desplegar Ticket'; btn.disabled = false; setTimeout(() => msg.classList.add('hidden'), 5000); }
         });
 
-        // Extractor de horas
         function parseHoras(t) {
             if ((t.estado === 'Cerrada' || t.estado === 'En Verificación') && t.tiempo) {
                 return parseInt(t.tiempo.toString().replace(/\D/g, '')) || 0;
@@ -335,37 +374,87 @@
             return Math.floor((new Date() - new Date(t.fecha)) / (1000 * 60 * 60));
         }
 
-        // Dashboard Analítico
+        // Filtro por Temporalidad
+        function filtrarPorTemporalidad(tickets) {
+            const modo = document.getElementById('filtroTemporalidad').value;
+            if (modo === 'TODO') return tickets;
+
+            const ahora = new Date();
+            return tickets.filter(t => {
+                const fechaTicket = new Date(t.fecha);
+                if (modo === 'HOY') {
+                    return fechaTicket.toDateString() === ahora.toDateString();
+                } else if (modo === 'SEMANA') {
+                    return (ahora - fechaTicket) / (1000 * 60 * 60 * 24) <= 7;
+                } else if (modo === 'MES') {
+                    return fechaTicket.getMonth() === ahora.getMonth() && fechaTicket.getFullYear() === ahora.getFullYear();
+                } else if (modo === 'ANIO') {
+                    return fechaTicket.getFullYear() === ahora.getFullYear();
+                }
+                return true;
+            });
+        }
+
+        // Dashboard Analítico Completo (SLA + % Cumplimiento + Filtro Proyecto + Torta Fallas)
         function actualizarDashboardUI() {
-            const filtroVal = document.getElementById('filtroDashboard').value;
-            const ticketsFiltrados = filtroVal === "TODOS" ? ticketsData : ticketsData.filter(t => t.proveedor === filtroVal);
+            const proveedorSel = document.getElementById('filtroDashboard').value;
+            const proyectoSel = document.getElementById('filtroProyecto').value;
             
-            // Cálculos para KPIs superiores
+            // 1. Filtrado en cascada
+            let filtrados = ticketsData;
+            if (proveedorSel !== "TODOS") filtrados = filtrados.filter(t => t.proveedor === proveedorSel);
+            if (proyectoSel !== "TODOS") filtrados = filtrados.filter(t => t.proyecto === proyectoSel);
+            filtrados = filtrarPorTemporalidad(filtrados);
+            
             let atenciones = 0;
             let sumaHoras = 0;
+            let cumplidosSLA = 0;
+            let totalCerradosOSLA = 0;
+
+            const fallasConteo = { 'GPS': 0, 'Cámaras': 0, 'Energía': 0, 'Otros': 0 };
             
-            ticketsFiltrados.forEach(t => {
+            filtrados.forEach(t => {
+                // Clasificador automático de tipo de falla por texto de incidencia
+                const inc = (t.incidencia || "").toLowerCase();
+                if(inc.includes('gps') || inc.includes('satelital')) fallasConteo['GPS']++;
+                else if(inc.includes('camara') || inc.includes('video')) fallasConteo['Cámaras']++;
+                else if(inc.includes('energia') || inc.includes('bateria') || inc.includes('corriente')) fallasConteo['Energía']++;
+                else fallasConteo['Otros']++;
+
                 if(t.estado === 'Cerrada' || t.estado === 'En Verificación') {
                     atenciones++;
-                    sumaHoras += parseHoras(t);
+                    const h = parseHoras(t);
+                    sumaHoras += h;
+                    
+                    totalCerradosOSLA++;
+                    let limiteSLA = 48;
+                    if(t.prioridad === 'Crítica') limiteSLA = 4;
+                    else if(t.prioridad === 'Alta') limiteSLA = 24;
+
+                    if(h <= limiteSLA) cumplidosSLA++;
                 }
             });
 
-            document.getElementById('dash-total').textContent = ticketsFiltrados.length;
+            document.getElementById('dash-total').textContent = filtrados.length;
             document.getElementById('dash-atenciones').textContent = atenciones;
             document.getElementById('dash-tiempo').textContent = atenciones > 0 ? Math.round(sumaHoras / atenciones) + ' hrs' : '0 hrs';
+            
+            const porcentajeSLA = totalCerradosOSLA > 0 ? Math.round((cumplidosSLA / totalCerradosOSLA) * 100) : 100;
+            document.getElementById('dash-sla').textContent = porcentajeSLA + '%';
 
             const ctx = document.getElementById('proveedorChart').getContext('2d');
+            const ctxFalla = document.getElementById('fallaChart').getContext('2d');
+            
             if (chartInstance) chartInstance.destroy();
+            if (fallaChartInstance) fallaChartInstance.destroy();
 
-            // Toggle Leyenda
-            document.getElementById('leyendaEstados').style.display = filtroVal === "TODOS" ? "none" : "flex";
+            document.getElementById('leyendaEstados').style.display = proveedorSel === "TODOS" ? "none" : "flex";
 
-            if (filtroVal === "TODOS") {
-                // Gráfico Comparativo: Proveedores vs Solicitudes
+            // Gráfico Principal (Barras)
+            if (proveedorSel === "TODOS") {
                 const labels = proveedoresData.map(p => p.nombre);
-                const dataTotal = labels.map(l => ticketsData.filter(t => t.proveedor === l).length);
-                const dataResueltos = labels.map(l => ticketsData.filter(t => t.proveedor === l && (t.estado === 'Cerrada' || t.estado === 'En Verificación')).length);
+                const dataTotal = labels.map(l => filtrados.filter(t => t.proveedor === l).length);
+                const dataResueltos = labels.map(l => filtrados.filter(t => t.proveedor === l && (t.estado === 'Cerrada' || t.estado === 'En Verificación')).length);
 
                 chartInstance = new Chart(ctx, {
                     type: 'bar',
@@ -383,10 +472,9 @@
                     }
                 });
             } else {
-                // Gráfico Analítico: Ticket x Ticket (Eje X: Ticket, Eje Y: Horas)
-                const labels = ticketsFiltrados.map(t => t.ticket);
-                const dataHoras = ticketsFiltrados.map(t => parseHoras(t));
-                const bgColors = ticketsFiltrados.map(t => {
+                const labels = filtrados.map(t => t.ticket);
+                const dataHoras = filtrados.map(t => parseHoras(t));
+                const bgColors = filtrados.map(t => {
                     if(t.estado === 'Pendiente') return '#f59e0b';
                     if(t.estado === 'En atención') return '#3b82f6';
                     if(t.estado === 'En Verificación') return '#a855f7';
@@ -397,27 +485,65 @@
                     type: 'bar',
                     data: {
                         labels: labels,
-                        datasets: [{ label: 'Tiempo de Respuesta (SLA)', data: dataHoras, backgroundColor: bgColors, borderRadius: 6, maxBarThickness: 40 }]
+                        datasets: [{ label: 'Tiempo de Respuesta (SLA)', data: dataHoras, backgroundColor: bgColors, borderRadius: 6, maxBarThickness: 35 }]
                     },
                     options: {
                         responsive: true, maintainAspectRatio: false,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: { 
-                                backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 12, cornerRadius: 8,
-                                callbacks: { label: function(context) { return ` ${context.raw} hrs (${ticketsFiltrados[context.dataIndex].estado})`; } }
-                            }
-                        },
+                        plugins: { legend: { display: false } },
                         scales: {
-                            x: { grid: { display: false }, ticks: { font: { family: "'Inter', sans-serif", size: 11 } } },
-                            y: { beginAtZero: true, title: { display: true, text: 'Horas consumidas', font: { family: "'Inter', sans-serif", weight: '600' } }, ticks: { font: { family: "'Inter', sans-serif" } } }
+                            x: { grid: { display: false }, ticks: { font: { family: "'Inter', sans-serif", size: 10 } } },
+                            y: { beginAtZero: true, title: { display: true, text: 'Horas', font: { family: "'Inter', sans-serif", weight: '600' } } }
                         }
                     }
                 });
             }
+
+            // Gráfico Secundario de Torta (Tipos de Falla)
+            fallaChartInstance = new Chart(ctxFalla, {
+                type: 'doughnut',
+                data: {
+                    labels: ['GPS', 'Cámaras', 'Energía', 'Otros'],
+                    datasets: [{
+                        data: [fallasConteo['GPS'], fallasConteo['Cámaras'], fallasConteo['Energía'], fallasConteo['Otros']],
+                        backgroundColor: ['#3b82f6', '#8b5cf6', '#f59e0b', '#cbd5e1'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }
+                }
+            });
         }
 
-        // Cargar y Renderizar Data Principal
+        // Exportar Reporte Ejecutivo (Texto plano estructurado listo para portapapeles / descarga)
+        function exportarReporteEjecutivo() {
+            const prov = document.getElementById('filtroDashboard').value;
+            const proy = document.getElementById('filtroProyecto').value;
+            const temp = document.getElementById('filtroTemporalidad').value;
+            
+            let textoReporte = `=========================================\n`;
+            textoReporte += ` SGMAP - REPORTE EJECUTIVO DE SLA \n`;
+            textoReporte += `=========================================\n`;
+            textoReporte += `Fecha de Emisión: ${new Date().toLocaleString()}\n`;
+            textoReporte += `Filtro Proveedor: ${prov}\n`;
+            textoReporte += `Filtro Proyecto: ${proy}\n`;
+            textoReporte += `Periodo: ${temp}\n`;
+            textoReporte += `-----------------------------------------\n`;
+            textoReporte += `Total Solicitudes: ${document.getElementById('dash-total').textContent}\n`;
+            textoReporte += `Atenciones Finalizadas: ${document.getElementById('dash-atenciones').textContent}\n`;
+            textoReporte += `Tiempo Promedio: ${document.getElementById('dash-tiempo').textContent}\n`;
+            textoReporte += `Cumplimiento SLA: ${document.getElementById('dash-sla').textContent}\n`;
+            textoReporte += `=========================================\n`;
+
+            const blob = new Blob([textoReporte], { type: 'text/plain;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Reporte_SGMAP_${prov}_${new Date().toISOString().slice(0,10)}.txt`;
+            a.click();
+        }
+
         async function cargarDatosGenerales() {
             const tbody = document.getElementById('tablaCuerpo');
             const selectProv = document.getElementById('proveedor');
@@ -431,7 +557,6 @@
                 ticketsData = data.tickets || data;
                 proveedoresData = data.proveedores || [];
 
-                // Llenar selects
                 if(proveedoresData.length > 0) {
                     const prevProv = selectProv.value;
                     const prevFiltro = filtroDash.value;
