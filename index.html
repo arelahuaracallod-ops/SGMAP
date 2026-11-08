@@ -393,8 +393,10 @@
             finally { btn.innerHTML = '<i class="fas fa-paper-plane"></i> Desplegar Ticket'; btn.disabled = false; setTimeout(() => msg.classList.add('hidden'), 5000); }
         });
 
+        // PARSE HORAS: Ahora es insensible a mayúsculas o espacios
         function parseHoras(t) {
-            if ((t.estado === 'Cerrada' || t.estado === 'En Verificación') && t.tiempo) {
+            const estadoNorm = (t.estado || "").trim().toLowerCase();
+            if ((estadoNorm === 'cerrada' || estadoNorm === 'en verificación' || estadoNorm === 'en verificacion') && t.tiempo) {
                 return parseInt(t.tiempo.toString().replace(/\D/g, '')) || 0;
             }
             return Math.floor((new Date() - new Date(t.fecha)) / (1000 * 60 * 60));
@@ -428,12 +430,15 @@
             
             filtrados.forEach(t => {
                 const inc = (t.incidencia || "").toLowerCase();
+                const estadoNorm = (t.estado || "").trim().toLowerCase();
+                
                 if(inc.includes('gps') || inc.includes('satelital')) fallasConteo['GPS']++;
                 else if(inc.includes('camara') || inc.includes('video')) fallasConteo['Cámaras']++;
                 else if(inc.includes('energia') || inc.includes('bateria') || inc.includes('corriente')) fallasConteo['Energía']++;
                 else fallasConteo['Otros']++;
 
-                if(t.estado === 'Cerrada' || t.estado === 'En Verificación') {
+                // EVALUACIÓN A PRUEBA DE MAYÚSCULAS/ESPACIOS
+                if(estadoNorm === 'cerrada' || estadoNorm === 'en verificación' || estadoNorm === 'en verificacion') {
                     atenciones++;
                     const h = parseHoras(t);
                     sumaHoras += h;
@@ -466,7 +471,10 @@
                         labels: labels,
                         datasets: [
                             { label: 'Total Solicitudes', data: labels.map(l => filtrados.filter(t => t.proveedor === l).length), backgroundColor: '#cbd5e1', borderRadius: 6 },
-                            { label: 'Atenciones Resueltas', data: labels.map(l => filtrados.filter(t => t.proveedor === l && (t.estado === 'Cerrada' || t.estado === 'En Verificación')).length), backgroundColor: '#1A52A0', borderRadius: 6 }
+                            { label: 'Atenciones Resueltas', data: labels.map(l => filtrados.filter(t => {
+                                const st = (t.estado || "").trim().toLowerCase();
+                                return t.proveedor === l && (st === 'cerrada' || st === 'en verificación' || st === 'en verificacion');
+                            }).length), backgroundColor: '#1A52A0', borderRadius: 6 }
                         ]
                     },
                     options: { responsive: true, maintainAspectRatio: false, animation: { duration: 0 }, plugins: { legend: { position: 'top' } } }
@@ -476,7 +484,19 @@
                     type: 'bar',
                     data: {
                         labels: filtrados.map(t => t.ticket),
-                        datasets: [{ label: 'Horas (SLA)', data: filtrados.map(t => parseHoras(t)), backgroundColor: filtrados.map(t => t.estado === 'Pendiente' ? '#f59e0b' : t.estado === 'En atención' ? '#3b82f6' : t.estado === 'En Verificación' ? '#a855f7' : '#10b981'), borderRadius: 6, maxBarThickness: 35 }]
+                        datasets: [{ 
+                            label: 'Horas (SLA)', 
+                            data: filtrados.map(t => parseHoras(t)), 
+                            backgroundColor: filtrados.map(t => {
+                                const st = (t.estado || "").trim().toLowerCase();
+                                if(st === 'pendiente') return '#f59e0b';
+                                if(st === 'en atención' || st === 'en atencion') return '#3b82f6';
+                                if(st === 'en verificación' || st === 'en verificacion') return '#a855f7';
+                                return '#10b981';
+                            }), 
+                            borderRadius: 6, 
+                            maxBarThickness: 35 
+                        }]
                     },
                     options: { responsive: true, maintainAspectRatio: false, animation: { duration: 0 }, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 10 } } }, y: { beginAtZero: true } } }
                 });
@@ -546,21 +566,15 @@
             const elemento = document.getElementById('dashboardContent');
             const chartContainer = document.getElementById('contenedorGraficos');
 
-            // Ocultar botones para no imprimirlos
             controles.style.display = 'none';
             btnCerrar.style.display = 'none';
-
-            // 1. Eliminar clases de visualización web (scroll y altura dinámica)
             elemento.classList.remove('h-[90vh]', 'overflow-y-auto', 'p-7', 'shadow-2xl');
-            
-            // 2. Forzar medidas exactas de hoja A4 apaisada a 96 DPI
             elemento.style.width = '1122px';
             elemento.style.height = '760px';
-            elemento.style.padding = '1.25rem'; // Reducir margen interior
+            elemento.style.padding = '1.25rem'; 
             
             if (chartContainer) chartContainer.classList.remove('min-h-[220px]');
 
-            // 3. Añadir el encabezado corporativo estructurado
             const divEncabezado = document.createElement('div');
             divEncabezado.id = "pdfHeader";
             divEncabezado.innerHTML = `
@@ -571,7 +585,6 @@
             `;
             elemento.prepend(divEncabezado);
 
-            // 4. Obligar a Chart.js a redimensionarse en el nuevo contenedor bloqueado
             if (chartInstance) chartInstance.resize();
             if (fallaChartInstance) fallaChartInstance.resize();
 
@@ -583,24 +596,18 @@
               jsPDF:        { unit: 'in', format: 'a4', orientation: 'landscape' }
             };
 
-            // Pequeña pausa de milisegundos para que Chart.js aplique el resize antes de capturar
             setTimeout(() => {
                 html2pdf().set(opt).from(elemento).save().then(() => {
-                    
-                    // Restaurar elementos ocultos
                     controles.style.display = 'flex';
                     btnCerrar.style.display = 'flex';
                     document.getElementById('pdfHeader').remove();
                     
-                    // Restaurar vista web original (con scroll y altura adaptativa)
                     elemento.style.width = '';
                     elemento.style.height = '';
                     elemento.style.padding = '';
                     elemento.classList.add('h-[90vh]', 'overflow-y-auto', 'p-7', 'shadow-2xl');
                     
                     if (chartContainer) chartContainer.classList.add('min-h-[220px]');
-                    
-                    // Volver a ajustar los gráficos a la pantalla actual del usuario
                     if (chartInstance) chartInstance.resize();
                     if (fallaChartInstance) fallaChartInstance.resize();
                 });
@@ -634,19 +641,20 @@
                 let abiertos = 0, proximos = 0, vencidos = 0;
                 
                 ticketsData.forEach(t => { 
+                    const estadoNorm = (t.estado || "").trim().toLowerCase();
                     let colorEstado = 'bg-slate-100 text-slate-600', horasSLA = 0, htmlSLA = '', botonAccion = '-';
                     let rowClass = "hover:bg-slate-50 transition-colors border-b border-slate-50", rowIcon = "";
 
-                    if (t.estado !== 'Cerrada') {
+                    // Lógica para todos los tickets NO cerrados
+                    if (estadoNorm !== 'cerrada') {
                         horasSLA = parseHoras(t);
                         abiertos++;
                         
-                        // Lógica Dinámica de SLA según Prioridad
-                        let limiteSLA = 48; // Prioridad Media
+                        let limiteSLA = 48; 
                         if (t.prioridad === 'Crítica') limiteSLA = 4;
                         else if (t.prioridad === 'Alta') limiteSLA = 24;
                         
-                        let umbralRiesgo = limiteSLA * 0.75; // Se activa la alerta al 75% del tiempo consumido
+                        let umbralRiesgo = limiteSLA * 0.75; 
 
                         if (horasSLA >= limiteSLA) { 
                             vencidos++; 
@@ -658,7 +666,6 @@
                             htmlSLA = `<span class="text-slate-600 font-medium">${horasSLA} hrs</span>`; 
                         }
 
-                        // Colores visuales en la tabla (Recomendación implementada)
                         if (horasSLA >= limiteSLA || t.prioridad === 'Crítica') { 
                             rowClass = "bg-red-50 hover:bg-red-100 border-b border-red-100"; 
                             rowIcon = `<i class="fas fa-circle text-[8px] text-red-500 mr-2 animate-pulse"></i>`; 
@@ -670,12 +677,21 @@
                         htmlSLA = `<span class="text-emerald-500 font-bold"><i class="fas fa-check mr-1"></i> Ok</span>`; 
                     }
 
-                    if(t.estado === 'Pendiente') colorEstado = 'bg-amber-50 text-amber-600 border border-amber-200';
-                    if(t.estado === 'En atención') colorEstado = 'bg-blue-50 text-blue-600 border border-blue-200';
-                    if(t.estado === 'En Verificación') { colorEstado = 'bg-purple-50 text-purple-600 font-bold'; botonAccion = `<button onclick="cerrarTicket('${t.ticket}')" class="bg-purple-100 hover:bg-purple-600 hover:text-white text-purple-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"><i class="fas fa-check-double mr-1"></i> Validar</button>`; }
-                    if(t.estado === 'Cerrada') colorEstado = 'bg-emerald-50 text-emerald-600 border border-emerald-200';
+                    // APLICACIÓN DE COLORES Y BOTONES A PRUEBA DE MAYÚSCULAS/ESPACIOS
+                    if(estadoNorm === 'pendiente') {
+                        colorEstado = 'bg-amber-50 text-amber-600 border border-amber-200';
+                    } else if(estadoNorm === 'en atención' || estadoNorm === 'en atencion') {
+                        colorEstado = 'bg-blue-50 text-blue-600 border border-blue-200';
+                    } else if(estadoNorm === 'en verificación' || estadoNorm === 'en verificacion') { 
+                        colorEstado = 'bg-purple-50 text-purple-600 font-bold'; 
+                        botonAccion = `<button onclick="cerrarTicket('${t.ticket}')" class="bg-purple-100 hover:bg-purple-600 hover:text-white text-purple-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-all"><i class="fas fa-check-double mr-1"></i> Validar</button>`; 
+                    } else if(estadoNorm === 'cerrada') {
+                        colorEstado = 'bg-emerald-50 text-emerald-600 border border-emerald-200';
+                    }
+                    
+                    const estadoVisible = t.estado || 'Desconocido';
 
-                    tbody.insertAdjacentHTML('beforeend', `<tr class="${rowClass}"><td class="px-6 py-4 font-bold text-slate-800">${rowIcon}${t.ticket}</td><td class="px-6 py-4 font-medium text-slate-500">${t.proveedor}</td><td class="px-6 py-4 font-bold text-slate-700 uppercase">${t.unidad}</td><td class="px-6 py-4"><span class="${colorEstado} py-1 px-3 rounded-full text-xs">${t.estado}</span></td><td class="px-6 py-4">${htmlSLA}</td><td class="px-6 py-4 text-center">${botonAccion}</td></tr>`);
+                    tbody.insertAdjacentHTML('beforeend', `<tr class="${rowClass}"><td class="px-6 py-4 font-bold text-slate-800">${rowIcon}${t.ticket}</td><td class="px-6 py-4 font-medium text-slate-500">${t.proveedor}</td><td class="px-6 py-4 font-bold text-slate-700 uppercase">${t.unidad}</td><td class="px-6 py-4"><span class="${colorEstado} py-1 px-3 rounded-full text-xs">${estadoVisible}</span></td><td class="px-6 py-4">${htmlSLA}</td><td class="px-6 py-4 text-center">${botonAccion}</td></tr>`);
                 });
                 
                 document.getElementById('kpi-abiertos').textContent = abiertos;
