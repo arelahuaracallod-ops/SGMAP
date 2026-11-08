@@ -96,7 +96,6 @@
                         </div>
                     </div>
                     
-                    <!-- NUEVO CAMPO ASUNTO AGREGADO AQUÍ -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Asunto</label>
                         <input type="text" id="asunto" placeholder="Ej. Revisión de GPS, Falla de Cámara..." class="w-full rounded-xl border-slate-200 bg-slate-50 border p-3 text-sm focus:bg-white focus:ring-2 focus:ring-transaltisa-secondary/50 outline-none transition-all" required>
@@ -373,7 +372,6 @@
             const msg = document.getElementById('statusMsg');
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...'; btn.disabled = true;
             try {
-                // AQUÍ SE AGREGA EL CAMPO "ASUNTO" A LA LÓGICA DE ENVÍO
                 await fetch(APPS_SCRIPT_URL, { 
                     method: 'POST', 
                     mode: 'no-cors', 
@@ -384,7 +382,7 @@
                         proyecto: document.getElementById('proyecto').value, 
                         unidad: document.getElementById('unidad').value.toUpperCase(), 
                         prioridad: document.getElementById('prioridad').value, 
-                        asunto: document.getElementById('asunto').value, // <--- CAMPO AÑADIDO
+                        asunto: document.getElementById('asunto').value,
                         incidencia: document.getElementById('incidencia').value 
                     }) 
                 });
@@ -430,7 +428,6 @@
             
             filtrados.forEach(t => {
                 const inc = (t.incidencia || "").toLowerCase();
-                // Ahora también puede buscar el tipo de falla en el asunto si se desea, pero lo mantendremos en incidencia para no romper la lógica actual.
                 if(inc.includes('gps') || inc.includes('satelital')) fallasConteo['GPS']++;
                 else if(inc.includes('camara') || inc.includes('video')) fallasConteo['Cámaras']++;
                 else if(inc.includes('energia') || inc.includes('bateria') || inc.includes('corriente')) fallasConteo['Energía']++;
@@ -643,11 +640,35 @@
                     if (t.estado !== 'Cerrada') {
                         horasSLA = parseHoras(t);
                         abiertos++;
-                        if (horasSLA >= 48) { vencidos++; htmlSLA = `<span class="text-red-500 font-bold">${horasSLA} hrs</span>`; }
-                        else if (horasSLA >= 24) { proximos++; htmlSLA = `<span class="text-amber-500 font-bold">${horasSLA} hrs</span>`; }
-                        else { htmlSLA = `<span class="text-slate-600 font-medium">${horasSLA} hrs</span>`; }
-                        if (t.prioridad === 'Crítica') { rowClass = "bg-red-50/50 hover:bg-red-50 border-b border-red-100"; rowIcon = `<i class="fas fa-circle text-[8px] text-red-500 mr-2 animate-pulse"></i>`; }
-                    } else { htmlSLA = `<span class="text-emerald-500 font-bold"><i class="fas fa-check mr-1"></i> Ok</span>`; }
+                        
+                        // Lógica Dinámica de SLA según Prioridad
+                        let limiteSLA = 48; // Prioridad Media
+                        if (t.prioridad === 'Crítica') limiteSLA = 4;
+                        else if (t.prioridad === 'Alta') limiteSLA = 24;
+                        
+                        let umbralRiesgo = limiteSLA * 0.75; // Se activa la alerta al 75% del tiempo consumido
+
+                        if (horasSLA >= limiteSLA) { 
+                            vencidos++; 
+                            htmlSLA = `<span class="text-red-500 font-bold">${horasSLA} hrs</span>`; 
+                        } else if (horasSLA >= umbralRiesgo) { 
+                            proximos++; 
+                            htmlSLA = `<span class="text-amber-500 font-bold">${horasSLA} hrs</span>`; 
+                        } else { 
+                            htmlSLA = `<span class="text-slate-600 font-medium">${horasSLA} hrs</span>`; 
+                        }
+
+                        // Colores visuales en la tabla (Recomendación implementada)
+                        if (horasSLA >= limiteSLA || t.prioridad === 'Crítica') { 
+                            rowClass = "bg-red-50 hover:bg-red-100 border-b border-red-100"; 
+                            rowIcon = `<i class="fas fa-circle text-[8px] text-red-500 mr-2 animate-pulse"></i>`; 
+                        } else if (horasSLA >= umbralRiesgo) {
+                            rowClass = "bg-amber-50/50 hover:bg-amber-100 border-b border-amber-100";
+                            rowIcon = `<i class="fas fa-exclamation-triangle text-[10px] text-amber-500 mr-2"></i>`;
+                        }
+                    } else { 
+                        htmlSLA = `<span class="text-emerald-500 font-bold"><i class="fas fa-check mr-1"></i> Ok</span>`; 
+                    }
 
                     if(t.estado === 'Pendiente') colorEstado = 'bg-amber-50 text-amber-600 border border-amber-200';
                     if(t.estado === 'En atención') colorEstado = 'bg-blue-50 text-blue-600 border border-blue-200';
