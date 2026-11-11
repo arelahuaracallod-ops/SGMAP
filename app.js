@@ -1,4 +1,3 @@
-// app.js
 const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxLkaLu2Fz9Mkl5vAzmuE_BvAe5wglx3T6NS8VUBa7VT9_0urt-6OxdNYN9vHIK6jyh/exec';
 let chartInstance = null;
 let fallaChartInstance = null;
@@ -135,9 +134,18 @@ document.getElementById('ticketForm').addEventListener('submit', async (e) => {
 // --- CÁLCULOS Y LÓGICA DE DATOS ---
 function parseHoras(t) {
     const estadoNorm = (t.estado || "").trim().toLowerCase();
-    if ((estadoNorm === 'cerrada' || estadoNorm === 'en verificación' || estadoNorm === 'en verificacion') && t.tiempo) {
-        return parseInt(t.tiempo.toString().replace(/\D/g, '')) || 0;
+    
+    if (estadoNorm === 'cerrada' || estadoNorm === 'en verificación' || estadoNorm === 'en verificacion') {
+        if (t.tiempo) {
+            // Si tiene tiempo guardado en el Excel, lo usa
+            return parseInt(t.tiempo.toString().replace(/\D/g, '')) || 0;
+        } else {
+            // CORRECCIÓN: Si el ticket está cerrado pero no tiene horas guardadas, devuelve 0 
+            // para evitar que el tiempo siga corriendo infinitamente hasta el día de hoy.
+            return 0; 
+        }
     }
+    // Si el ticket está abierto, calcula las horas desde que se creó hasta AHORA
     return Math.floor((new Date() - new Date(t.fecha)) / (1000 * 60 * 60));
 }
 
@@ -169,12 +177,13 @@ function actualizarDashboardUI() {
     const fallasConteo = { 'GPS': 0, 'Cámaras': 0, 'Energía': 0, 'Otros': 0 };
     
     filtrados.forEach(t => {
-        const inc = (t.incidencia || "").toLowerCase();
+        // CORRECCIÓN: Ahora busca palabras clave tanto en el ASUNTO como en el DETALLE (incidencia)
+        const textoBusqueda = ((t.asunto || "") + " " + (t.incidencia || "")).toLowerCase();
         const estadoNorm = (t.estado || "").trim().toLowerCase();
         
-        if(inc.includes('gps') || inc.includes('satelital')) fallasConteo['GPS']++;
-        else if(inc.includes('camara') || inc.includes('video')) fallasConteo['Cámaras']++;
-        else if(inc.includes('energia') || inc.includes('bateria') || inc.includes('corriente')) fallasConteo['Energía']++;
+        if(textoBusqueda.includes('gps') || textoBusqueda.includes('satelital')) fallasConteo['GPS']++;
+        else if(textoBusqueda.includes('camara') || textoBusqueda.includes('cámara') || textoBusqueda.includes('video')) fallasConteo['Cámaras']++;
+        else if(textoBusqueda.includes('energia') || textoBusqueda.includes('energía') || textoBusqueda.includes('bateria') || textoBusqueda.includes('corriente')) fallasConteo['Energía']++;
         else fallasConteo['Otros']++;
 
         if(estadoNorm === 'cerrada' || estadoNorm === 'en verificación' || estadoNorm === 'en verificacion') {
@@ -359,40 +368,70 @@ async function cargarDatosGenerales() {
         
         ticketsData.forEach(t => { 
             const estadoNorm = (t.estado || "").trim().toLowerCase();
-            let colorEstado = 'bg-slate-100 text-slate-600', horasSLA = 0, htmlSLA = '', botonAccion = '-';
+            let colorEstado = 'bg-slate-100 text-slate-600', htmlSLA = '', botonAccion = '';
             let rowClass = "hover:bg-slate-50 transition-colors border-b border-slate-50", rowIcon = "";
 
+            const horasReales = parseHoras(t); // Siempre calcula las horas exactas
+
             if (estadoNorm !== 'cerrada') {
-                horasSLA = parseHoras(t);
                 abiertos++;
-                
                 let limiteSLA = 48; 
                 if (t.prioridad === 'Crítica') limiteSLA = 4;
                 else if (t.prioridad === 'Alta') limiteSLA = 24;
                 
                 let umbralRiesgo = limiteSLA * 0.75; 
 
-                if (horasSLA >= limiteSLA) { vencidos++; htmlSLA = `<span class="text-red-500 font-bold">${horasSLA} hrs</span>`; } 
-                else if (horasSLA >= umbralRiesgo) { proximos++; htmlSLA = `<span class="text-amber-500 font-bold">${horasSLA} hrs</span>`; } 
-                else { htmlSLA = `<span class="text-slate-600 font-medium">${horasSLA} hrs</span>`; }
+                // Asignación visual a las tarjetas superiores
+                if (horasReales >= limiteSLA) { 
+                    vencidos++; 
+                    htmlSLA = `<span class="text-red-500 font-bold">${horasReales} hrs</span>`; 
+                } else if (horasReales >= umbralRiesgo) { 
+                    proximos++; 
+                    htmlSLA = `<span class="text-amber-500 font-bold">${horasReales} hrs</span>`; 
+                } else { 
+                    htmlSLA = `<span class="text-slate-600 font-medium">${horasReales} hrs</span>`; 
+                }
 
-                if (horasSLA >= limiteSLA || t.prioridad === 'Crítica') { rowClass = "bg-red-50 hover:bg-red-100 border-b border-red-100"; rowIcon = `<i class="fas fa-circle text-[8px] text-red-500 mr-2 animate-pulse"></i>`; } 
-                else if (horasSLA >= umbralRiesgo) { rowClass = "bg-amber-50/50 hover:bg-amber-100 border-b border-amber-100"; rowIcon = `<i class="fas fa-exclamation-triangle text-[10px] text-amber-500 mr-2"></i>`; }
-            } else { htmlSLA = `<span class="text-emerald-500 font-bold"><i class="fas fa-check mr-1"></i> Ok</span>`; }
+                // Diseño visual de la fila
+                if (horasReales >= limiteSLA || t.prioridad === 'Crítica') { 
+                    rowClass = "bg-red-50 hover:bg-red-100 border-b border-red-100"; 
+                    rowIcon = `<i class="fas fa-circle text-[8px] text-red-500 mr-2 animate-pulse"></i>`; 
+                } else if (horasReales >= umbralRiesgo) { 
+                    rowClass = "bg-amber-50/50 hover:bg-amber-100 border-b border-amber-100"; 
+                    rowIcon = `<i class="fas fa-exclamation-triangle text-[10px] text-amber-500 mr-2"></i>`; 
+                }
+            } else { 
+                // CORRECCIÓN: Para tickets cerrados, ahora muestra el tiempo exacto consumido en lugar de "Ok"
+                htmlSLA = `<span class="text-slate-600 font-bold">${horasReales} hrs</span>`; 
+            }
 
-            if(estadoNorm === 'pendiente') { colorEstado = 'bg-amber-50 text-amber-600 border border-amber-200'; } 
-            else if(estadoNorm === 'en atención' || estadoNorm === 'en atencion') { colorEstado = 'bg-blue-50 text-blue-600 border border-blue-200'; } 
+            // Asignación de colores, botones y etiquetas según estado
+            if(estadoNorm === 'pendiente') { 
+                colorEstado = 'bg-amber-50 text-amber-600 border border-amber-200'; 
+                // CORRECCIÓN: Ya no muestra un guion "-"
+                botonAccion = `<span class="text-slate-400 text-[11px] italic font-medium"><i class="fas fa-hourglass-half mr-1 text-slate-300"></i> Esperando al proveedor</span>`;
+            } 
+            else if(estadoNorm === 'en atención' || estadoNorm === 'en atencion') { 
+                colorEstado = 'bg-blue-50 text-blue-600 border border-blue-200'; 
+                botonAccion = `<span class="text-slate-400 text-[11px] italic font-medium"><i class="fas fa-tools mr-1 text-slate-300"></i> En manos del proveedor</span>`;
+            } 
             else if(estadoNorm === 'en verificación' || estadoNorm === 'en verificacion') { 
                 colorEstado = 'bg-purple-50 text-purple-600 font-bold'; 
                 botonAccion = `<button onclick="abrirModalValidacion('${t.ticket}')" class="bg-purple-100 hover:bg-purple-600 hover:text-white text-purple-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm"><i class="fas fa-clipboard-check mr-1"></i> Validar</button>`; 
-            } else if(estadoNorm === 'cerrada') { colorEstado = 'bg-emerald-50 text-emerald-600 border border-emerald-200'; }
+            } else if(estadoNorm === 'cerrada') { 
+                colorEstado = 'bg-emerald-50 text-emerald-600 border border-emerald-200'; 
+                // Muestra un pequeño check sutil cuando ya está cerrado
+                botonAccion = `<i class="fas fa-check text-emerald-200"></i>`;
+            }
             
             const estadoVisible = t.estado || 'Desconocido';
 
             tbody.insertAdjacentHTML('beforeend', `<tr class="${rowClass}"><td class="px-6 py-4 font-bold text-slate-800">${rowIcon}${t.ticket}</td><td class="px-6 py-4 font-medium text-slate-500">${t.proveedor}</td><td class="px-6 py-4 font-bold text-slate-700 uppercase">${t.unidad}</td><td class="px-6 py-4"><span class="${colorEstado} py-1 px-3 rounded-full text-xs">${estadoVisible}</span></td><td class="px-6 py-4">${htmlSLA}</td><td class="px-6 py-4 text-center">${botonAccion}</td></tr>`);
         });
         
-        document.getElementById('kpi-abiertos').textContent = abiertos; document.getElementById('kpi-proximos').textContent = proximos; document.getElementById('kpi-vencidos').textContent = vencidos;
+        document.getElementById('kpi-abiertos').textContent = abiertos; 
+        document.getElementById('kpi-proximos').textContent = proximos; 
+        document.getElementById('kpi-vencidos').textContent = vencidos;
         
         if(!document.getElementById('dashboardModal').classList.contains('hidden')) actualizarDashboardUI();
     } catch (error) { 
