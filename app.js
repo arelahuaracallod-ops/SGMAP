@@ -137,15 +137,11 @@ function parseHoras(t) {
     
     if (estadoNorm === 'cerrada' || estadoNorm === 'en verificación' || estadoNorm === 'en verificacion') {
         if (t.tiempo) {
-            // Si tiene tiempo guardado en el Excel, lo usa
             return parseInt(t.tiempo.toString().replace(/\D/g, '')) || 0;
         } else {
-            // CORRECCIÓN: Si el ticket está cerrado pero no tiene horas guardadas, devuelve 0 
-            // para evitar que el tiempo siga corriendo infinitamente hasta el día de hoy.
             return 0; 
         }
     }
-    // Si el ticket está abierto, calcula las horas desde que se creó hasta AHORA
     return Math.floor((new Date() - new Date(t.fecha)) / (1000 * 60 * 60));
 }
 
@@ -177,7 +173,6 @@ function actualizarDashboardUI() {
     const fallasConteo = { 'GPS': 0, 'Cámaras': 0, 'Energía': 0, 'Otros': 0 };
     
     filtrados.forEach(t => {
-        // CORRECCIÓN: Ahora busca palabras clave tanto en el ASUNTO como en el DETALLE (incidencia)
         const textoBusqueda = ((t.asunto || "") + " " + (t.incidencia || "")).toLowerCase();
         const estadoNorm = (t.estado || "").trim().toLowerCase();
         
@@ -233,7 +228,7 @@ function actualizarDashboardUI() {
             data: {
                 labels: filtrados.map(t => t.ticket),
                 datasets: [{ 
-                    label: 'Horas (SLA)', 
+                    label: 'Horas (Acumuladas)', 
                     data: filtrados.map(t => parseHoras(t)), 
                     backgroundColor: filtrados.map(t => {
                         const st = (t.estado || "").trim().toLowerCase();
@@ -270,7 +265,7 @@ function exportarExcel() {
     const temp = document.getElementById('filtroTemporalidad').options[document.getElementById('filtroTemporalidad').selectedIndex].text;
     
     const kpiData = [
-        ["SGMAP - REPORTE EJECUTIVO DE CONTROL SLA"],
+        ["SGMAP - REPORTE EJECUTIVO DE CONTROL"],
         ["Fecha de Emisión:", new Date().toLocaleString()],
         ["Filtro Proveedor:", prov],
         ["Filtro Proyecto:", proy],
@@ -280,7 +275,7 @@ function exportarExcel() {
         ["Total Solicitudes:", document.getElementById('dash-total').textContent],
         ["Atenciones Finalizadas:", document.getElementById('dash-atenciones').textContent],
         ["Tiempo Promedio (hrs):", document.getElementById('dash-tiempo').textContent],
-        ["Cumplimiento SLA:", document.getElementById('dash-sla').textContent],
+        ["Efectividad:", document.getElementById('dash-sla').textContent],
         [],
         ["DETALLE DE ATENCIONES POR PROVEEDOR"]
     ];
@@ -315,7 +310,7 @@ function exportarPDF() {
     divEncabezado.id = "pdfHeader";
     divEncabezado.innerHTML = `
         <div style="text-align:center; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; margin-bottom: 15px;">
-            <h1 style="color:#0B336A; font-family: sans-serif; font-size: 24px; font-weight: 800; margin:0;">SGMAP | REPORTE EJECUTIVO DE SLA</h1>
+            <h1 style="color:#0B336A; font-family: sans-serif; font-size: 24px; font-weight: 800; margin:0;">SGMAP | REPORTE EJECUTIVO DE CONTROL</h1>
             <p style="color:#64748b; font-size: 12px; margin-top:5px;">Documento generado el: ${new Date().toLocaleString()}</p>
         </div>
     `;
@@ -324,7 +319,7 @@ function exportarPDF() {
     if (chartInstance) chartInstance.resize();
     if (fallaChartInstance) fallaChartInstance.resize();
 
-    const opt = { margin: 0.15, filename: `SGMAP_Reporte_SLA_${new Date().toISOString().slice(0,10)}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } };
+    const opt = { margin: 0.15, filename: `SGMAP_Reporte_Control_${new Date().toISOString().slice(0,10)}.pdf`, image: { type: 'jpeg', quality: 1 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a4', orientation: 'landscape' } };
 
     setTimeout(() => {
         html2pdf().set(opt).from(elemento).save().then(() => {
@@ -364,35 +359,34 @@ async function cargarDatosGenerales() {
         }
 
         tbody.innerHTML = '';
-        let abiertos = 0, proximos = 0, vencidos = 0;
+        let aTiempo = 0, enRiesgo = 0, vencidos = 0;
         
         ticketsData.forEach(t => { 
             const estadoNorm = (t.estado || "").trim().toLowerCase();
             let colorEstado = 'bg-slate-100 text-slate-600', htmlSLA = '', botonAccion = '';
             let rowClass = "hover:bg-slate-50 transition-colors border-b border-slate-50", rowIcon = "";
 
-            const horasReales = parseHoras(t); // Siempre calcula las horas exactas
+            const horasReales = parseHoras(t); 
 
             if (estadoNorm !== 'cerrada') {
-                abiertos++;
                 let limiteSLA = 48; 
                 if (t.prioridad === 'Crítica') limiteSLA = 4;
                 else if (t.prioridad === 'Alta') limiteSLA = 24;
                 
                 let umbralRiesgo = limiteSLA * 0.75; 
 
-                // Asignación visual a las tarjetas superiores
+                // ASIGNACIÓN MUTUAMENTE EXCLUYENTE
                 if (horasReales >= limiteSLA) { 
                     vencidos++; 
                     htmlSLA = `<span class="text-red-500 font-bold">${horasReales} hrs</span>`; 
                 } else if (horasReales >= umbralRiesgo) { 
-                    proximos++; 
+                    enRiesgo++; 
                     htmlSLA = `<span class="text-amber-500 font-bold">${horasReales} hrs</span>`; 
                 } else { 
+                    aTiempo++;
                     htmlSLA = `<span class="text-slate-600 font-medium">${horasReales} hrs</span>`; 
                 }
 
-                // Diseño visual de la fila
                 if (horasReales >= limiteSLA || t.prioridad === 'Crítica') { 
                     rowClass = "bg-red-50 hover:bg-red-100 border-b border-red-100"; 
                     rowIcon = `<i class="fas fa-circle text-[8px] text-red-500 mr-2 animate-pulse"></i>`; 
@@ -401,14 +395,11 @@ async function cargarDatosGenerales() {
                     rowIcon = `<i class="fas fa-exclamation-triangle text-[10px] text-amber-500 mr-2"></i>`; 
                 }
             } else { 
-                // CORRECCIÓN: Para tickets cerrados, ahora muestra el tiempo exacto consumido en lugar de "Ok"
                 htmlSLA = `<span class="text-slate-600 font-bold">${horasReales} hrs</span>`; 
             }
 
-            // Asignación de colores, botones y etiquetas según estado
             if(estadoNorm === 'pendiente') { 
                 colorEstado = 'bg-amber-50 text-amber-600 border border-amber-200'; 
-                // CORRECCIÓN: Ya no muestra un guion "-"
                 botonAccion = `<span class="text-slate-400 text-[11px] italic font-medium"><i class="fas fa-hourglass-half mr-1 text-slate-300"></i> Esperando al proveedor</span>`;
             } 
             else if(estadoNorm === 'en atención' || estadoNorm === 'en atencion') { 
@@ -420,7 +411,6 @@ async function cargarDatosGenerales() {
                 botonAccion = `<button onclick="abrirModalValidacion('${t.ticket}')" class="bg-purple-100 hover:bg-purple-600 hover:text-white text-purple-700 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm"><i class="fas fa-clipboard-check mr-1"></i> Validar</button>`; 
             } else if(estadoNorm === 'cerrada') { 
                 colorEstado = 'bg-emerald-50 text-emerald-600 border border-emerald-200'; 
-                // Muestra un pequeño check sutil cuando ya está cerrado
                 botonAccion = `<i class="fas fa-check text-emerald-200"></i>`;
             }
             
@@ -429,8 +419,8 @@ async function cargarDatosGenerales() {
             tbody.insertAdjacentHTML('beforeend', `<tr class="${rowClass}"><td class="px-6 py-4 font-bold text-slate-800">${rowIcon}${t.ticket}</td><td class="px-6 py-4 font-medium text-slate-500">${t.proveedor}</td><td class="px-6 py-4 font-bold text-slate-700 uppercase">${t.unidad}</td><td class="px-6 py-4"><span class="${colorEstado} py-1 px-3 rounded-full text-xs">${estadoVisible}</span></td><td class="px-6 py-4">${htmlSLA}</td><td class="px-6 py-4 text-center">${botonAccion}</td></tr>`);
         });
         
-        document.getElementById('kpi-abiertos').textContent = abiertos; 
-        document.getElementById('kpi-proximos').textContent = proximos; 
+        document.getElementById('kpi-abiertos').textContent = aTiempo; 
+        document.getElementById('kpi-proximos').textContent = enRiesgo; 
         document.getElementById('kpi-vencidos').textContent = vencidos;
         
         if(!document.getElementById('dashboardModal').classList.contains('hidden')) actualizarDashboardUI();
