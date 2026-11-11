@@ -15,7 +15,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    <!-- Configuración Tailwind (Debe ir en HTML al usar CDN) -->
     <script>
         tailwind.config = {
           theme: { 
@@ -27,8 +26,6 @@
           }
         }
     </script>
-
-    <!-- Enlace al archivo CSS externo -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="text-slate-800 antialiased relative">
@@ -41,7 +38,7 @@
             </div>
             <div class="flex items-center gap-3">
                 <button onclick="abrirDashboard()" class="bg-white/10 hover:bg-white/20 border border-white/20 px-4 py-2 rounded-full text-sm font-semibold transition-all flex items-center gap-2 shadow-sm">
-                    <i class="fas fa-chart-line text-blue-300"></i> Dashboard SLA
+                    <i class="fas fa-chart-line text-blue-300"></i> Dashboard de Control
                 </button>
                 <div class="text-sm font-medium flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full hidden sm:flex">
                     <i class="fas fa-user-circle text-lg"></i> Centro de Control
@@ -51,7 +48,6 @@
     </nav>
 
     <div class="max-w-7xl mx-auto px-4 py-8 grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Formulario -->
         <div class="lg:col-span-1">
             <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-7">
                 <h2 class="text-lg font-bold mb-6 text-slate-800 flex items-center gap-2">
@@ -105,29 +101,28 @@
             </div>
         </div>
 
-        <!-- KPIs y Tabla -->
         <div class="lg:col-span-2 space-y-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
                 <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-6 flex items-center justify-between">
                     <div>
-                        <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">En Proceso</div>
+                        <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">A Tiempo</div>
                         <div id="kpi-abiertos" class="text-4xl font-black text-slate-800">0</div>
                     </div>
                     <div class="h-12 w-12 rounded-full bg-blue-50 flex items-center justify-center text-blue-500 text-xl"><i class="fas fa-layer-group"></i></div>
                 </div>
                 <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-6 flex items-center justify-between">
                     <div>
-                        <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Próximos a Vencer</div>
+                        <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">En Riesgo</div>
                         <div id="kpi-proximos" class="text-4xl font-black text-amber-500">0</div>
                     </div>
-                    <div class="h-12 w-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 text-xl"><i class="fas fa-clock"></i></div>
+                    <div class="h-12 w-12 rounded-full bg-amber-50 flex items-center justify-center text-amber-500 text-xl"><i class="fas fa-exclamation-triangle"></i></div>
                 </div>
                 <div class="bg-white rounded-2xl shadow-modern border border-slate-100 p-6 flex items-center justify-between">
                     <div>
                         <div class="text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">Vencidos</div>
                         <div id="kpi-vencidos" class="text-4xl font-black text-red-500">0</div>
                     </div>
-                    <div class="h-12 w-12 rounded-full bg-red-50 flex items-center justify-center text-red-500 text-xl"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="h-12 w-12 rounded-full bg-red-50 flex items-center justify-center text-red-500 text-xl"><i class="fas fa-exclamation-circle"></i></div>
                 </div>
             </div>
 
@@ -164,11 +159,11 @@
         </div>
     </div>
 
-    <!-- MODAL DASHBOARD CORPORATIVO (SLA) -->
+    <!-- MODAL DASHBOARD CORPORATIVO -->
     <div id="dashboardModal" class="hidden fixed inset-0 bg-slate-900/70 z-[70] flex justify-center items-center backdrop-blur-sm p-4">
         <div id="dashboardContent" class="bg-white rounded-2xl shadow-2xl w-full max-w-6xl p-7 border-t-4 border-transaltisa-secondary relative flex flex-col h-[90vh] overflow-y-auto">
             <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center mb-5 gap-3 border-b border-slate-100 pb-4">
-                <div class="flex items-center gap-3"><h2 class="text-xl font-bold text-slate-800"><i class="fas fa-chart-bar text-transaltisa-secondary mr-2"></i> Dashboard Ejecutivo SLA</h2></div>
+                <div class="flex items-center gap-3"><h2 class="text-xl font-bold text-slate-800"><i class="fas fa-chart-bar text-transaltisa-secondary mr-2"></i> Dashboard Ejecutivo de Control</h2></div>
                 <div class="flex flex-wrap items-center gap-2.5 w-full xl:w-auto">
                     <select id="filtroDashboard" class="rounded-xl border-slate-200 bg-slate-50 border p-2 text-xs focus:ring-2 focus:ring-transaltisa-secondary outline-none font-semibold text-slate-700" onchange="actualizarDashboardUI()"><option value="TODOS">Todos los Proveedores</option></select>
                     <select id="filtroProyecto" class="rounded-xl border-slate-200 bg-slate-50 border p-2 text-xs focus:ring-2 focus:ring-transaltisa-secondary outline-none font-semibold text-slate-700" onchange="actualizarDashboardUI()">
@@ -195,7 +190,7 @@
                     <div><div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">Tiempo Promedio</div><div id="dash-tiempo" class="text-2xl font-black text-blue-600">0 hrs</div></div><i class="fas fa-stopwatch text-2xl text-blue-200"></i>
                 </div>
                 <div class="bg-slate-50 rounded-xl p-3.5 border border-slate-100 flex items-center justify-between">
-                    <div><div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">% Cumplimiento SLA</div><div id="dash-sla" class="text-2xl font-black text-purple-600">100%</div></div><i class="fas fa-award text-2xl text-purple-200"></i>
+                    <div><div class="text-[10px] text-slate-500 font-bold uppercase tracking-wider mb-1">% Efectividad</div><div id="dash-sla" class="text-2xl font-black text-purple-600">100%</div></div><i class="fas fa-award text-2xl text-purple-200"></i>
                 </div>
             </div>
             <div id="contenedorGraficos" class="grid grid-cols-1 lg:grid-cols-3 gap-5 flex-1 min-h-[220px]">
@@ -270,7 +265,6 @@
         </div>
     </div>
 
-    <!-- Enlace al archivo JS externo -->
     <script src="app.js"></script>
 </body>
 </html>
